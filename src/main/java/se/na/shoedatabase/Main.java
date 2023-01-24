@@ -30,7 +30,10 @@ public class Main {
                     int answer = inputView.inputInt("Skriv nummer på viken sko du vill beställa:", true);
                     for (Shoe shoe : shoes) {
                         if (shoe.getId() == answer) {
-                            System.out.println(shoe + "\när Du säker på att du vill beställa denna sko?");
+                            System.out.println(shoe + "\när Du säker på att du vill beställa denna sko? 1 för ja, 2 för nej");
+                            if(inputView.inputInt("", false) == 1){
+                                System.out.println(rep.addOrder(0, customer.getId(), shoe.getId()));
+                            }
                         }
                     }
 

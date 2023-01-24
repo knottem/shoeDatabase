@@ -5,10 +5,7 @@ import se.na.shoedatabase.model.Shoe;
 import se.na.shoedatabase.utility.Connect;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class Repository {
@@ -47,6 +44,40 @@ public class Repository {
         } else {
             return null;
         }
+    }
+
+    public String addOrder(int orderid, int customerid, int shoeid){
+        ResultSet rs;
+        String errormessage = "";
+        String sql = "call AddToCart(?,?,?)";
+        try(Connection con = connect.getConnectionDB();
+            CallableStatement stmt = con.prepareCall(sql)){
+            if(orderid == 0) {
+                stmt.setNull(1, Types.INTEGER);
+            } else {
+                stmt.setInt(1, orderid);
+            }
+            stmt.setInt(2, customerid);
+            stmt.setInt(3, shoeid);
+
+            rs = stmt.executeQuery();
+            if(rs != null) {
+                while (rs.next()) {
+                    errormessage = rs.getString("debug");
+                }
+            }
+            if(!errormessage.equals("")){
+                return errormessage;
+            }
+
+        } catch (SQLIntegrityConstraintViolationException e){
+            e.printStackTrace();
+            return "Customer id doesnt exist";
+        } catch (Exception e){
+            e.printStackTrace();
+            return "Could not add order";
+        }
+        return "Order was added to database";
     }
 
     public ArrayList<Shoe> listAllShoes(){
