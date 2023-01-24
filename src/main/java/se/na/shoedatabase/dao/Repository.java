@@ -1,6 +1,5 @@
 package se.na.shoedatabase.dao;
 
-import com.mysql.cj.protocol.Resultset;
 import se.na.shoedatabase.model.Customer;
 import se.na.shoedatabase.model.Shoe;
 import se.na.shoedatabase.utility.Connect;

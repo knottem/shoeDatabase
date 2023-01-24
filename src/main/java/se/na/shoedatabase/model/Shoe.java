@@ -21,11 +21,6 @@ public class Shoe {
     public int getId() {
         return id;
     }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public int getPrice() {
         return price;
     }
@@ -56,5 +51,25 @@ public class Shoe {
 
     public void setSize(int size) {
         this.size = size;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    @Override
+    public String toString() {
+        return "Shoe{" +
+                "id=" + id +
+                ", price=" + price +
+                ", brand='" + brand + '\'' +
+                ", color='" + color + '\'' +
+                ", size=" + size +
+                ", quantity=" + quantity +
+                '}';
     }
 }
