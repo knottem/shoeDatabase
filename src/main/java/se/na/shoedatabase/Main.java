@@ -24,7 +24,8 @@ public class Main {
                     for (Shoe shoe : shoes) {
                         System.out.println("Nr: " + shoe.getId() +
                                 " Märke: " + shoe.getBrand() +
-                                " Pris: " + shoe.getPrice());
+                                " Pris: " + shoe.getPrice() +
+                                " Färg: " + shoe.getColor());
                     }
                 }
             }
