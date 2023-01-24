@@ -1,6 +1,7 @@
 package se.na.shoedatabase.dao;
 
 import se.na.shoedatabase.model.Customer;
+import se.na.shoedatabase.model.Orders;
 import se.na.shoedatabase.model.Shoe;
 import se.na.shoedatabase.utility.Connect;
 
@@ -46,10 +47,11 @@ public class Repository {
         }
     }
 
-    public String addOrder(int orderid, int customerid, int shoeid){
+    public int addOrder(int orderid, int customerid, int shoeid){
         ResultSet rs;
         String errormessage = "";
-        String sql = "call AddToCart(?,?,?)";
+        String sql = "call AddToCart(?,?,?,?)";
+        int neworderid = 0;
         try(Connection con = connect.getConnectionDB();
             CallableStatement stmt = con.prepareCall(sql)){
             if(orderid == 0) {
@@ -59,9 +61,11 @@ public class Repository {
             }
             stmt.setInt(2, customerid);
             stmt.setInt(3, shoeid);
-
+            stmt.registerOutParameter(4,Types.INTEGER);
             rs = stmt.executeQuery();
-            if(rs != null) {
+            neworderid = stmt.getInt(4);
+            
+          /*  if(rs != null) {
                 while (rs.next()) {
                     errormessage = rs.getString("debug");
                 }
@@ -70,17 +74,17 @@ public class Repository {
                 return errormessage;
             }
 
-        } catch (SQLIntegrityConstraintViolationException e){
-            e.printStackTrace();
-            return "Customer id doesnt exist";
+           */
+
+        } catch (SQLException e){
+            System.out.println(e.getMessage() + "(" + e.getErrorCode()+ ")");
         } catch (Exception e){
             e.printStackTrace();
-            return "Could not add order";
         }
-        return "Order was added to database";
+        return neworderid;
     }
 
-    public ArrayList<Shoe> listAllShoes(){
+    public ArrayList<Shoe> getAllShoes(){
         String sql = "select shoe.id, price, shoebrand.name, shoecolor.colorswe, shoesize.euSize, shoe.quantity from shoe\n" +
                 "inner join shoebrand on brandid = shoebrand.id\n" +
                 "inner join shoecolor on colorid = shoecolor.id\n" +
@@ -106,5 +110,43 @@ public class Repository {
             throw new RuntimeException(e);
         }
         return shoes;
+    }
+
+    public ArrayList<Orders> getOrders(int orderid, int customerid) {
+        ArrayList<Orders> orders = new ArrayList<>();
+        orders.add(new Orders(orderid));
+        String sql = "select shoe.id, shoebrand.name, shoecolor.colorswe, shoesize.euSize, ordersmap.quantity, shoe.price from orders\n"+
+        "inner join ordersmap on orders.id = ordersmap.orderid\n" +
+        "inner join shoe on shoe.id = ordersmap.shoeid\n" +
+        "inner join shoebrand on brandid = shoebrand.id\n" +
+        "inner join shoecolor on colorid = shoecolor.id\n" +
+        "inner join shoesize on sizeid = shoesize.id\n" +
+        "where orders.Id = ? and orders.customerId = ?";
+        try (Connection con = connect.getConnectionDB();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, orderid);
+            stmt.setInt(2, customerid);
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()){
+                for (int i = 0; i < orders.size(); i++) {
+                    if(orders.get(i).getId() == orderid){
+                        orders.get(i).getShoes().add(new Shoe(
+                                rs.getInt("id"),
+                                rs.getInt("price"),
+                                rs.getString("name"),
+                                rs.getString("colorswe"),
+                                rs.getInt("eusize"),
+                                rs.getInt("quantity")));
+                    }
+                }
+
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return orders;
     }
 }
