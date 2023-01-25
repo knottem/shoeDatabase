@@ -5,32 +5,49 @@ import se.na.shoedatabase.dao.Repository;
 import se.na.shoedatabase.model.Orders;
 import se.na.shoedatabase.model.Shoe;
 import se.na.shoedatabase.view.InputView;
+import se.na.shoedatabase.view.PrintHelp;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Main {
 
     static InputView inputView = new InputView();
+    static Repository rep = new Repository();
+    static PrintHelp printHelp = new PrintHelp();
 
-    public static void main(String[] args) {
-        Repository rep = new Repository();
-        ArrayList<Shoe> shoes;
-        Customer customer = rep.getCustomer(9901011234L, "123");
-        if (customer != null) {
+    boolean repeat = true;
+
+
+    private void Program(){
+
+        System.out.println("Välkommen till skobutiken");
+        do{
+            System.out.println("Vad vill du göra?\n1. Logga in\n2. Ny Kund\n3. Avsluta programmet");
+            int answer = inputView.inputInt("Svara med Siffra", true);
+            switch(answer){
+                case 1 -> login();
+                //case 2 -> createUser();
+                case 3 -> System.exit(0);
+                default -> System.out.println("Felaktig Siffra");
+            }
+        } while (repeat);
+    }
+    private void login(){
+        long ssn = inputView.inputLong("Vad är ditt personnummer?", true);
+        System.out.println("Vad är ditt lösenord?");
+        Scanner scan = new Scanner(System.in);
+        String pass = scan.nextLine();
+        Customer customer = rep.getCustomer(ssn, pass);
+        if(customer != null){
             int orderid = 0;
+            ArrayList<Shoe> shoes = rep.getAllShoes();
             System.out.println(customer);
             while (true) {
                 System.out.println("Vad vill du göra?\n1. Lägg till ny beställning\n2. Lägg till beställning till nuvarande beställning\n3. Se din beställning\n4. Avsluta");
                 switch (inputView.inputInt("", false)) {
                     case 1 -> {
-                        shoes = rep.getAllShoes();
-                        System.out.printf("----------------------------------------------------%n");
-                        System.out.printf("| %-2s | %-9s | %7s | %6s | %5s | %4s |%n", "ID", "Märke", "Storlek", "Färg", "Mängd", "Pris");
-                        System.out.printf("----------------------------------------------------%n");
-                        for (Shoe shoe : shoes) {
-                            System.out.printf("| %-2s | %-9s | %7s | %6s | %5s | %4s |%n", shoe.getId(), shoe.getBrand(), shoe.getSize(), shoe.getColor(), shoe.getQuantity(), shoe.getPrice());
-                        }
-                        System.out.printf("-----------------------------------------------------%n");
+                        printHelp.printShoes(shoes);
                         int answer = inputView.inputInt("Skriv nummer på viken sko du vill beställa:", true);
                         for (Shoe shoe : shoes) {
                             if (shoe.getId() == answer) {
@@ -43,17 +60,9 @@ public class Main {
                                 }
                             }
                         }
-
                     }
                     case 2 -> {
-                        shoes = rep.getAllShoes();
-                        System.out.printf("----------------------------------------------------%n");
-                        System.out.printf("| %-2s | %-9s | %7s | %6s | %5s | %4s |%n", "ID", "Märke", "Storlek", "Färg", "Mängd", "Pris");
-                        System.out.printf("----------------------------------------------------%n");
-                        for (Shoe shoe : shoes) {
-                            System.out.printf("| %-2s | %-9s | %7s | %6s | %5s | %4s |%n", shoe.getId(), shoe.getBrand(), shoe.getSize(), shoe.getColor(), shoe.getQuantity(), shoe.getPrice());
-                        }
-                        System.out.printf("-----------------------------------------------------%n");
+                        printHelp.printShoes(shoes);
                         int answer = inputView.inputInt("Skriv nummer på viken sko du vill beställa:", true);
                         for (Shoe shoe : shoes) {
                             if (shoe.getId() == answer) {
@@ -76,8 +85,16 @@ public class Main {
 
                     }
                     case 4 -> System.exit(0);
+                    default -> System.out.println("Felaktigt nummer");
                 }
             }
+        } else {
+            System.out.println("Användare finns ej / fel lösenord");
         }
+    }
+
+    public static void main(String[] args) {
+        Main m = new Main();
+        m.Program();
     }
 }
