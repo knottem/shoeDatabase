@@ -73,7 +73,7 @@ public class Repository {
             if(!errormessage.equals("")){
                 return errormessage;
             }
-
+            rs.close();
            */
 
         } catch (SQLException e){
