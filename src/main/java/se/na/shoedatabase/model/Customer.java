@@ -23,6 +23,7 @@ public class Customer {
         this.city = city;
         this.zipcode = zipcode;
     }
+    public Customer(){}
 
     public int getId() {
         return id;

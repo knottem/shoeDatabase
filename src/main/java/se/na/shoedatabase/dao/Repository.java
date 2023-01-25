@@ -19,7 +19,7 @@ public class Repository {
         String sql = "select customer.id, firstname, lastname, ssn, pass, streetname, streetnumber, zipcode, city from customer \n" +
                 "inner join address on address.id = addressId where ssn=? and pass=?";
         try (Connection connection = connect.getConnectionDB();
-             PreparedStatement preparedStt = connection.prepareStatement(sql);){
+             PreparedStatement preparedStt = connection.prepareStatement(sql)){
             preparedStt.setLong(1, answer);
             preparedStt.setString(2, pass);
             ResultSet rs = preparedStt.executeQuery();
@@ -85,11 +85,12 @@ public class Repository {
     }
 
     public ArrayList<Shoe> getAllShoes(){
-        String sql = "select shoe.id, price, shoebrand.name, shoecolor.colorswe, shoesize.euSize, shoe.quantity from shoe\n" +
-                "inner join shoebrand on brandid = shoebrand.id\n" +
-                "inner join shoecolor on colorid = shoecolor.id\n" +
-                "inner join shoesize on sizeid = shoesize.id\n" +
-                "where quantity > 0;";
+        String sql = """
+                select shoe.id, price, shoebrand.name, shoecolor.colorswe, shoesize.euSize, shoe.quantity from shoe
+                inner join shoebrand on brandid = shoebrand.id
+                inner join shoecolor on colorid = shoecolor.id
+                inner join shoesize on sizeid = shoesize.id
+                where quantity > 0;""";
         shoes.clear();
         try(Connection con = connect.getConnectionDB();
             PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -104,9 +105,7 @@ public class Repository {
                         rs.getInt("quantity")));
             }
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+        } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
         return shoes;
@@ -115,22 +114,23 @@ public class Repository {
     public ArrayList<Orders> getOrders(int orderid, int customerid) {
         ArrayList<Orders> orders = new ArrayList<>();
         orders.add(new Orders(orderid));
-        String sql = "select shoe.id, shoebrand.name, shoecolor.colorswe, shoesize.euSize, ordersmap.quantity, shoe.price from orders\n"+
-        "inner join ordersmap on orders.id = ordersmap.orderid\n" +
-        "inner join shoe on shoe.id = ordersmap.shoeid\n" +
-        "inner join shoebrand on brandid = shoebrand.id\n" +
-        "inner join shoecolor on colorid = shoecolor.id\n" +
-        "inner join shoesize on sizeid = shoesize.id\n" +
-        "where orders.Id = ? and orders.customerId = ?";
+        String sql = """
+                select shoe.id, shoebrand.name, shoecolor.colorswe, shoesize.euSize, ordersmap.quantity, shoe.price from orders
+                inner join ordersmap on orders.id = ordersmap.orderid
+                inner join shoe on shoe.id = ordersmap.shoeid
+                inner join shoebrand on brandid = shoebrand.id
+                inner join shoecolor on colorid = shoecolor.id
+                inner join shoesize on sizeid = shoesize.id
+                where orders.Id = ? and orders.customerId = ?""";
         try (Connection con = connect.getConnectionDB();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setInt(1, orderid);
             stmt.setInt(2, customerid);
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
-                for (int i = 0; i < orders.size(); i++) {
-                    if(orders.get(i).getId() == orderid){
-                        orders.get(i).getShoes().add(new Shoe(
+                for (Orders order : orders) {
+                    if (order.getId() == orderid) {
+                        order.getShoes().add(new Shoe(
                                 rs.getInt("id"),
                                 rs.getInt("price"),
                                 rs.getString("name"),
@@ -142,9 +142,7 @@ public class Repository {
 
             }
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+        } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
         return orders;
