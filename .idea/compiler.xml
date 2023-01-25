@@ -9,8 +9,5 @@
         <module name="shoeDatabase" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="shoeDatabase" target="18" />
-    </bytecodeTargetLevel>
   </component>
 </project>

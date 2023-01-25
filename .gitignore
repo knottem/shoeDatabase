@@ -25,5 +25,6 @@ replay_pid*
 
 *.properties
 .idea/
+.idea
 src/main/resources
 src/main/resources/settings.properties
