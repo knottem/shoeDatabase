@@ -63,13 +63,10 @@ public class Shoe {
 
     @Override
     public String toString() {
-        return "Shoe{" +
-                "id=" + id +
-                ", price=" + price +
-                ", brand='" + brand + '\'' +
-                ", color='" + color + '\'' +
-                ", size=" + size +
-                ", quantity=" + quantity +
-                '}';
+        return "Märke: " + brand + " Färg: " + color + " Storlek: " + size + " Pris: " + price;
+    }
+
+    public String toStringWithQuantity(){
+        return "Märke: " + brand + " Färg: " + color + " Storlek: " + size + " Pris: " + price + " Antal: " + quantity;
     }
 }

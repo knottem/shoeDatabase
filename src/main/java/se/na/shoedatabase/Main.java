@@ -41,27 +41,51 @@ public class Main {
         Customer customer = rep.getCustomer(ssn, pass);
         if(customer != null){
             int orderid = 0;
-            ArrayList<Shoe> shoes = rep.getAllShoes();
+            ArrayList<Shoe> shoes;
             System.out.println(customer);
             while (true) {
                 System.out.println("Vad vill du göra?\n1. Lägg till ny beställning\n2. Lägg till beställning till nuvarande beställning\n3. Se din beställning\n4. Avsluta");
                 switch (inputView.inputInt("", false)) {
                     case 1 -> {
-                        printHelp.printShoes(shoes);
-                        int answer = inputView.inputInt("Skriv nummer på viken sko du vill beställa:", true);
-                        for (Shoe shoe : shoes) {
-                            if (shoe.getId() == answer) {
-                                System.out.println(shoe + "\när Du säker på att du vill beställa denna sko? 1 för ja, 2 för nej");
-                                if (inputView.inputInt("", false) == 1) {
-                                    orderid = rep.addOrder(0, customer.getId(), shoe.getId());
-                                    if (orderid > 0) {
-                                        System.out.println("Skon tillagt till order " + orderid);
+                        orderid = 0;
+                        boolean repeatorder = false;
+                        do {
+                            shoes = rep.getAllShoes();
+                            printHelp.printShoes(shoes);
+                            int answer = inputView.inputInt("Skriv nummer på viken sko du vill beställa:", true);
+                            for (Shoe shoe : shoes) {
+                                if (shoe.getId() == answer) {
+                                    System.out.println(shoe + "\när Du säker på att du vill beställa denna sko? 1 för ja, 2 för nej");
+                                    if (inputView.inputInt("", false) == 1) {
+                                        if(orderid == 0) {
+                                            orderid = rep.addOrder(0, customer.getId(), shoe.getId());
+                                        } else
+                                            rep.addOrder(orderid, customer.getId(), shoe.getId());
+                                        if (orderid > 0) {
+                                            System.out.println("Skon tillagt till order " + orderid);
+                                        }
+                                    }
+                                    if (inputView.inputInt("Vill du lägga till fler skor i denna beställning? 1 för ja, 2 för nej", true) == 1) {
+                                        repeatorder = true;
+                                    } else {
+                                        ArrayList<Orders> orders;
+                                        orders = rep.getOrders(orderid, customer.getId());
+                                        System.out.println("-----------------------------------------------------%n");
+                                        System.out.println("Din beställning är gjord med: ");
+                                        for (int i = 0; i < orders.size(); i++) {
+                                            for (int j = 0; j < orders.get(i).getShoes().size(); j++) {
+                                                System.out.println(orders.get(i).getShoes().get(j).toStringWithQuantity());
+                                            }
+                                        }
+                                        System.out.println("-----------------------------------------------------%n");
+                                        repeatorder = false;
                                     }
                                 }
                             }
-                        }
+                        } while(repeatorder);
                     }
                     case 2 -> {
+                        shoes = rep.getAllShoes();
                         printHelp.printShoes(shoes);
                         int answer = inputView.inputInt("Skriv nummer på viken sko du vill beställa:", true);
                         for (Shoe shoe : shoes) {
