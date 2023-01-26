@@ -1,6 +1,6 @@
 package se.na.shoedatabase.view;
 
-import se.na.shoedatabase.model.Shoe;
+import se.na.shoedatabase.model.shoe.Shoe;
 
 import java.util.ArrayList;
 
@@ -8,13 +8,13 @@ public class PrintHelp {
 
     public void printShoes(ArrayList<Shoe> shoes){
         System.out.printf("----------------------------------------------------%n");
-        System.out.printf("| %-2s | %-9s | %7s | %6s | %5s | %4s |%n", "ID", "Märke", "Storlek", "Färg", "Mängd", "Pris");
+        System.out.printf("| %-2s | %-9s | %7s | %6s | %5s | %4s |%n", "Nr", "Märke", "Storlek", "Färg", "Mängd", "Pris");
         System.out.printf("----------------------------------------------------%n");
-        for (Shoe shoe : shoes) {
+        shoes.stream().filter(s -> s.getQuantity() > 0).forEach(s -> {
             System.out.printf("| %-2s | %-9s | %7s | %6s | %5s | %4s |%n",
-                    shoe.getId(), shoe.getBrand(), shoe.getSize(), shoe.getColor(), shoe.getQuantity(), shoe.getPrice());
-        }
-        System.out.printf("-----------------------------------------------------%n");
+                    s.getId(), s.getBrand(), s.getSize(), s.getColor(), s.getQuantity(), s.getPrice());
+        });
+        System.out.printf("----------------------------------------------------%n");
     }
 }
 

@@ -1,19 +1,23 @@
-package se.na.shoedatabase.model;
+package se.na.shoedatabase.model.shoe;
+
+import java.util.ArrayList;
 
 public class Shoe {
 
-    int id;
-    int price;
-    String brand;
-    String color;
-    int size;
-    int quantity;
+    private final int id;
+    private final int price;
+    private final int size;
+    private int quantity;
+    Brand brand = new Brand();
+    Color color = new Color();
+    ArrayList<Category> categories = new ArrayList<>();
+
 
     public Shoe(int id, int price, String brand, String color, int size, int quantity) {
         this.id = id;
         this.price = price;
-        this.brand = brand;
-        this.color = color;
+        this.brand.setBrand(brand);
+        this.color.setColor(color);
         this.size = size;
         this.quantity = quantity;
     }
@@ -25,32 +29,16 @@ public class Shoe {
         return price;
     }
 
-    public void setPrice(int price) {
-        this.price = price;
-    }
-
     public String getBrand() {
-        return brand;
-    }
-
-    public void setBrand(String brand) {
-        this.brand = brand;
+        return brand.getBrand();
     }
 
     public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
+        return color.getColor();
     }
 
     public int getSize() {
         return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
     }
 
     public int getQuantity() {
@@ -68,5 +56,13 @@ public class Shoe {
 
     public String toStringWithQuantity(){
         return "Märke: " + brand + " Färg: " + color + " Storlek: " + size + " Pris: " + price + " Antal: " + quantity;
+    }
+
+    public ArrayList<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(ArrayList<Category> categories) {
+        this.categories = categories;
     }
 }

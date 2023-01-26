@@ -1,4 +1,4 @@
-package se.na.shoedatabase.model;
+package se.na.shoedatabase.model.customer;
 
 public class Customer {
 
@@ -7,10 +7,7 @@ public class Customer {
     String lastname;
     Long ssn;
     String pass;
-    String address;
-    int addressNumber;
-    String city;
-    int zipcode;
+    Address address = new Address();
 
     public Customer(int id, String firstname, String lastname, Long ssn, String pass, String address, int addressNumber, String city, int zipcode) {
         this.id = id;
@@ -18,10 +15,10 @@ public class Customer {
         this.lastname = lastname;
         this.ssn = ssn;
         this.pass = pass;
-        this.address = address;
-        this.addressNumber = addressNumber;
-        this.city = city;
-        this.zipcode = zipcode;
+        this.address.setAddressNumber(addressNumber);
+        this.address.setAddress(address);
+        this.address.setCity(city);
+        this.address.setZipcode(zipcode);
     }
     public Customer(){}
 
@@ -64,6 +61,15 @@ public class Customer {
     public void setPass(String pass) {
         this.pass = pass;
     }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
     @Override
     public String toString() {
         return "Customer{" +
@@ -72,10 +78,10 @@ public class Customer {
                 ", lastname='" + lastname + '\'' +
                 ", ssn=" + ssn +
                 ", pass='" + pass + '\'' +
-                ", address='" + address + '\'' +
-                ", addressNumber=" + addressNumber +
-                ", city='" + city + '\'' +
-                ", zipcode=" + zipcode +
+                ", address='" + address.getAddress() + '\'' +
+                ", addressNumber=" + address.getAddressNumber() +
+                ", city='" + address.getCity() + '\'' +
+                ", zipcode=" + address.getZipcode() +
                 '}';
     }
 }

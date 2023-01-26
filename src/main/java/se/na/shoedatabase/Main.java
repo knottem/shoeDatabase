@@ -1,9 +1,9 @@
 package se.na.shoedatabase;
 
-import se.na.shoedatabase.model.Customer;
+import se.na.shoedatabase.model.customer.Customer;
 import se.na.shoedatabase.dao.Repository;
 import se.na.shoedatabase.model.Orders;
-import se.na.shoedatabase.model.Shoe;
+import se.na.shoedatabase.model.shoe.Shoe;
 import se.na.shoedatabase.view.InputView;
 import se.na.shoedatabase.view.PrintHelp;
 
@@ -70,14 +70,14 @@ public class Main {
                                     } else {
                                         ArrayList<Orders> orders;
                                         orders = rep.getOrders(orderid, customer.getId());
-                                        System.out.println("-----------------------------------------------------%n");
+                                        System.out.println("-----------------------------------------------------");
                                         System.out.println("Din beställning är gjord med: ");
                                         for (int i = 0; i < orders.size(); i++) {
                                             for (int j = 0; j < orders.get(i).getShoes().size(); j++) {
                                                 System.out.println(orders.get(i).getShoes().get(j).toStringWithQuantity());
                                             }
                                         }
-                                        System.out.println("-----------------------------------------------------%n");
+                                        System.out.println("-----------------------------------------------------");
                                         repeatorder = false;
                                     }
                                 }
@@ -115,6 +115,8 @@ public class Main {
         } else {
             System.out.println("Användare finns ej / fel lösenord");
         }
+
+
     }
 
     public static void main(String[] args) {

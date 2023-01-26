@@ -1,8 +1,9 @@
 package se.na.shoedatabase.dao;
 
-import se.na.shoedatabase.model.Customer;
+import se.na.shoedatabase.model.shoe.Category;
+import se.na.shoedatabase.model.customer.Customer;
 import se.na.shoedatabase.model.Orders;
-import se.na.shoedatabase.model.Shoe;
+import se.na.shoedatabase.model.shoe.Shoe;
 import se.na.shoedatabase.utility.Connect;
 
 import java.io.IOException;
@@ -24,16 +25,15 @@ public class Repository {
             preparedStt.setString(2, pass);
             ResultSet rs = preparedStt.executeQuery();
             while(rs.next()) {
-                int id = rs.getInt("id");
-                String firstname = rs.getString("firstname");
-                String lastname = rs.getString("lastname");
-                Long ssn = rs.getLong("ssn");
-                String password = rs.getString("pass");
-                String address = rs.getString("streetname");
-                int adressNumber = rs.getInt("streetnumber");
-                int zipcode = rs.getInt("zipcode");
-                String city = rs.getString("city");
-                customer = new Customer(id, firstname, lastname, ssn, password, address, adressNumber, city, zipcode);
+                customer = new Customer(rs.getInt("id"),
+                                        rs.getString("firstname"),
+                                        rs.getString("lastname"),
+                                        rs.getLong("ssn"),
+                                        rs.getString("pass"),
+                                        rs.getString("streetname"),
+                                        rs.getInt("streetnumber"),
+                                        rs.getString("city"),
+                                        rs.getInt("zipcode"));
             }
             connection.close();
             rs.close();
@@ -64,17 +64,15 @@ public class Repository {
             stmt.registerOutParameter(4,Types.INTEGER);
             rs = stmt.executeQuery();
             neworderid = stmt.getInt(4);
-            
-          /*  if(rs != null) {
-                while (rs.next()) {
-                    errormessage = rs.getString("debug");
-                }
+
+            while (rs != null && rs.next()) {
+                errormessage = rs.getString("debug");
             }
             if(!errormessage.equals("")){
-                return errormessage;
+                System.out.println(errormessage);
             }
+            assert rs != null;
             rs.close();
-           */
 
         } catch (SQLException e){
             System.out.println(e.getMessage() + "(" + e.getErrorCode()+ ")");
@@ -90,7 +88,12 @@ public class Repository {
                 inner join shoebrand on brandid = shoebrand.id
                 inner join shoecolor on colorid = shoecolor.id
                 inner join shoesize on sizeid = shoesize.id
-                where quantity > 0;""";
+                """;
+        String sql2 = """
+                select category.name, categorymap.shoeid from category
+                inner join categorymap on category.id = categorymap.categoryid
+                inner join shoe on shoe.id = categorymap.shoeid
+                """;
         shoes.clear();
         try(Connection con = connect.getConnectionDB();
             PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -108,6 +111,20 @@ public class Repository {
         } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
+        try(Connection con = connect.getConnectionDB();
+            PreparedStatement stmt = con.prepareStatement(sql2)) {
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()){
+                for (Shoe shoe : shoes) {
+                    if (rs.getInt("shoeid") == shoe.getId()) {
+                        shoe.getCategories().add(new Category(rs.getString("name")));
+                    }
+                }
+            }
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
         return shoes;
     }
 
