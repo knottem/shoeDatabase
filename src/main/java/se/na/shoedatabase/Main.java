@@ -34,10 +34,15 @@ public class Main {
         } while (repeat);
     }
     private void login(){
-        long ssn = inputView.inputLong("Vad är ditt personnummer?", true);
+        /*long ssn = inputView.inputLong("Vad är ditt personnummer?", true);
         System.out.println("Vad är ditt lösenord?");
         Scanner scan = new Scanner(System.in);
         String pass = scan.nextLine();
+
+         */
+        //temp
+        long ssn = 9901011234L;
+        String pass = "123";
         Customer customer = rep.getCustomer(ssn, pass);
         if(customer != null){
             int orderid = 0;

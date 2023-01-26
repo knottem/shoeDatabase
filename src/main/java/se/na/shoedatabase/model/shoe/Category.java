@@ -1,6 +1,7 @@
 package se.na.shoedatabase.model.shoe;
 
 public class Category {
+
     String categoryname;
 
     public Category(String categoryname) {
@@ -9,7 +10,6 @@ public class Category {
 
     public Category() {
     }
-
     public String getCategoryname() {
         return categoryname;
     }
