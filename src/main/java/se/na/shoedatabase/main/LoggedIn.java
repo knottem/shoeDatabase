@@ -18,7 +18,7 @@ public class LoggedIn {
     PrintHelp printHelp = new PrintHelp();
     InputView inputView = new InputView();
 
-    public int newOrder(Customer customer){
+    public void newOrder(Customer customer){
         int orderId = 0;
         boolean repeatorder = false;
         do {
@@ -57,7 +57,6 @@ public class LoggedIn {
                 }
             }
         } while(repeatorder);
-        return orderId;
     }
 
     public void searchOrders(Customer customer){
@@ -105,6 +104,7 @@ public class LoggedIn {
             }
             default -> System.out.println("Felaktigt nummer");
         }
+        assert tempShoes != null;
         if(!(tempShoes.size() == 0)){
             printHelp.printShoes(tempShoes);
         } else {
