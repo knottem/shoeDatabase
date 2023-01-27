@@ -1,7 +1,6 @@
 package se.na.shoedatabase.main;
 
 import se.na.shoedatabase.dao.Repository;
-import se.na.shoedatabase.model.Orders;
 import se.na.shoedatabase.model.customer.Customer;
 import se.na.shoedatabase.model.shoe.Shoe;
 import se.na.shoedatabase.view.InputView;
@@ -30,17 +29,16 @@ public class InitShoeDatabase {
             int answer = inputView.inputInt("Svara med Siffra", true);
             switch(answer){
                 case 1 -> login();
-                //case 2 -> createUser();
+                case 2 -> createUser();
                 case 3 -> System.exit(0);
                 default -> System.out.println("Felaktig Siffra");
             }
         } while (repeat);
     }
     private void login(){
-        /*long ssn = inputView.inputLong("Vad är ditt personnummer?", true);
-        System.out.println("Vad är ditt lösenord?");
-        Scanner scan = new Scanner(System.in);
-        String pass = scan.nextLine();
+        /*
+        long ssn = inputView.inputLong("Vad är ditt personnummer?", true);
+        String pass = inputView.inputString("Vad är ditt lösenord?",true);
 
          */
         //temp
@@ -71,6 +69,10 @@ public class InitShoeDatabase {
             System.out.println("Användare finns ej / fel lösenord");
         }
 
+
+    }
+
+    private void createUser(){
 
     }
 }

@@ -6,14 +6,16 @@ import java.util.Scanner;
 
 public class InputView {
 
+    Scanner scan = new Scanner(System.in);
     public int inputInt(String text, boolean showtext) {
         while (true) {
-            Scanner scan = new Scanner(System.in);
             if(showtext) {
                 System.out.println(text);
             }
             try {
-                return scan.nextInt();
+                int temp = scan.nextInt();
+                scan.nextLine();
+                return temp;
             } catch (InputMismatchException e) {
                 System.out.println("Förväntade mig ett nummer");
             } catch (NumberFormatException e) {
@@ -24,17 +26,25 @@ public class InputView {
 
     public long inputLong(String text, boolean showtext){
         while (true){
-            Scanner scan = new Scanner(System.in);
             if(showtext){
                 System.out.println(text);
             }
             try {
-                return scan.nextLong();
+                long temp = scan.nextLong();
+                scan.nextLine();
+                return temp;
             } catch (InputMismatchException e) {
                 System.out.println("Förväntade mig ett nummer");
             } catch (NumberFormatException e) {
                 System.out.println("Inte nummer");
             }
         }
+    }
+
+    public String inputString(String text, boolean showtext){
+        if(showtext){
+            System.out.println(text);
+        }
+        return scan.nextLine();
     }
 }

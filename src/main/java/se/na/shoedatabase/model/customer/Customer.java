@@ -7,7 +7,7 @@ public class Customer {
     private String lastname;
     private Long ssn;
     private String pass;
-    private Address address = new Address();
+    private Address address;
 
     public Customer(int id, String firstname, String lastname, Long ssn, String pass, String address, int addressNumber, String city, int zipcode) {
         this.id = id;
@@ -15,10 +15,7 @@ public class Customer {
         this.lastname = lastname;
         this.ssn = ssn;
         this.pass = pass;
-        this.address.setAddressNumber(addressNumber);
-        this.address.setAddress(address);
-        this.address.setCity(city);
-        this.address.setZipcode(zipcode);
+        this.address = new Address(address, addressNumber, city, zipcode);
     }
     public Customer(){}
 

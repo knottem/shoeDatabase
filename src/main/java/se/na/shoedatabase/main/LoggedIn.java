@@ -8,7 +8,6 @@ import se.na.shoedatabase.view.InputView;
 import se.na.shoedatabase.view.PrintHelp;
 
 import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class LoggedIn {
@@ -79,29 +78,35 @@ public class LoggedIn {
 
     public void searchShoes(ArrayList<Shoe> shoes) {
         ArrayList<Shoe> tempShoes = null;
-        Scanner scan = new Scanner(System.in);
         String answer;
         System.out.println("""
                 Vad vill du söka på?
                 1. Färg
                 2. Märke
-                3. Kategori""");
+                3. Kategori
+                4. Storlek""");
         switch (inputView.inputInt("Svara med siffra", true)) {
             case 1 -> {
-                System.out.println("Skriv en färg:");
-                answer = scan.nextLine();
-                tempShoes = shoes.stream().filter(s -> s.getColor().equalsIgnoreCase(answer)).collect(Collectors.toCollection(ArrayList::new));
+                answer = inputView.inputString("Skriv en färg:", true);
+                tempShoes = shoes.stream().filter(s ->
+                        s.getColor().equalsIgnoreCase(answer)).collect(Collectors.toCollection(ArrayList::new));
             }
             case 2 -> {
-                System.out.println("Skriv ett Märke:");
-                answer = scan.nextLine();
-                tempShoes = shoes.stream().filter(s -> s.getBrand().equalsIgnoreCase(answer)).collect(Collectors.toCollection(ArrayList::new));
+                answer = inputView.inputString("Skriv ett Märke:", true);
+                tempShoes = shoes.stream().filter(s ->
+                        s.getBrand().equalsIgnoreCase(answer)).collect(Collectors.toCollection(ArrayList::new));
             }
             case 3 -> {
-                System.out.println("Skriv en Kategori: ");
-                answer = scan.nextLine();
-                tempShoes = shoes.stream().filter(s -> s.getCategoriesNames().toString().contains(answer)).collect(Collectors.toCollection(ArrayList::new));
+                answer = inputView.inputString("Skriv en Kategori: ", true);
+                tempShoes = shoes.stream().filter(s ->
+                        s.getCategoriesNames().toString().contains(answer)).collect(Collectors.toCollection(ArrayList::new));
             }
+            case 4 -> {
+                int answerSize = inputView.inputInt("Skriv en storlek: ", true);
+                tempShoes = shoes.stream().filter(s ->
+                        s.getSize() == answerSize).collect(Collectors.toCollection(ArrayList::new));
+            }
+
             default -> System.out.println("Felaktigt nummer");
         }
         assert tempShoes != null;

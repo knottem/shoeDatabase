@@ -13,7 +13,6 @@ public class Address {
         this.city = city;
         this.zipcode = zipcode;
     }
-    public Address(){}
 
     public String getAddress() {
         return address;
