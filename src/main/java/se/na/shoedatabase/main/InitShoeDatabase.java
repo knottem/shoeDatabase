@@ -1,6 +1,7 @@
 package se.na.shoedatabase.main;
 
 import se.na.shoedatabase.dao.Repository;
+import se.na.shoedatabase.model.Orders;
 import se.na.shoedatabase.model.customer.Customer;
 import se.na.shoedatabase.model.shoe.Shoe;
 import se.na.shoedatabase.view.InputView;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 
 public class InitShoeDatabase {
 
-    static InputView inputView = new InputView();
+    static InputView inputView = InputView.getInputView();
     static Repository rep = new Repository();
     static PrintHelp printHelp = new PrintHelp();
     LoggedIn loggedIn = new LoggedIn();
@@ -25,12 +26,14 @@ public class InitShoeDatabase {
             Vad vill du göra?
             1. Logga in
             2. Ny Kund
-            3. Avsluta programmet""");
+            3. Kolla Rapporter
+            4. Avsluta programmet""");
             int answer = inputView.inputInt("Svara med Siffra", true);
             switch(answer){
                 case 1 -> login();
                 case 2 -> createUser();
-                case 3 -> System.exit(0);
+                case 3 -> checkRapports();
+                case 4 -> System.exit(0);
                 default -> System.out.println("Felaktig Siffra");
             }
         } while (repeat);
@@ -60,7 +63,7 @@ public class InitShoeDatabase {
                     case 1 -> loggedIn.searchShoes(shoes);
                     case 2 -> loggedIn.newOrder(customer);
                     case 3 -> loggedIn.searchOrders(customer);
-                    case 4 -> printHelp.printOrdersList(rep.getOrderNumbers(customer), shoes);
+                    case 4 -> printHelp.printShoesFromList(rep.getOrderNumbers(customer), shoes);
                     case 5 -> System.exit(0);
                     default -> System.out.println("Felaktigt nummer");
                 }
@@ -70,6 +73,13 @@ public class InitShoeDatabase {
         }
 
 
+    }
+
+    private void checkRapports(){
+        ArrayList<Shoe> shoes = rep.getAllShoes();
+        ArrayList<Customer> customers = rep.getAllCustomers();
+        ArrayList<Orders> orders = rep.getAllOrders(shoes, customers);
+        printHelp.printAllOrders(orders);
     }
 
     private void createUser(){

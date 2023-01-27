@@ -1,5 +1,6 @@
 package se.na.shoedatabase.view;
 
+import se.na.shoedatabase.model.Orders;
 import se.na.shoedatabase.model.shoe.Shoe;
 import java.util.ArrayList;
 
@@ -15,7 +16,7 @@ public class PrintHelp {
         System.out.printf("----------------------------------------------------------------------------%n");
     }
 
-    public void printOrdersList(ArrayList<Integer> numbers, ArrayList<Shoe> shoes){
+    public void printShoesFromList(ArrayList<Integer> numbers, ArrayList<Shoe> shoes){
         System.out.printf("------------------------------------------------------------------------------%n");
         System.out.printf("| %-2s | %-9s | %7s | %5s | %-20s | %4s | %3s |%n", "OrderNr", "Märke", "Storlek", "Färg", "Kategori", "Pris", "Mängd");
         System.out.printf("------------------------------------------------------------------------------%n");
@@ -28,6 +29,26 @@ public class PrintHelp {
             System.out.printf("|%6s |%n", numbers.get(i+2));
         }
         System.out.printf("------------------------------------------------------------------------------%n");
+    }
+
+    public void printAllOrders(ArrayList<Orders> orders){
+        System.out.printf("---------------------------------------------------------------------------%n");
+        System.out.printf("| %-2s | %-9s | %7s | %6s | %5s | %-20s | %4s |%n", "Nr", "Märke", "Storlek", "Färg", "Mängd", "Kategori", "Pris");
+        System.out.printf("---------------------------------------------------------------------------%n");
+        orders.forEach(o -> {
+            for (int i = 0; i < o.getShoes().size() ; i++) {
+                System.out.printf("| %-2s | %-9s | %7s | %6s | %5s | %-20s | %4s |%n",
+                        o.getShoes().get(i).getId(),
+                        o.getShoes().get(i).getBrand(),
+                        o.getShoes().get(i).getSize(),
+                        o.getShoes().get(i).getColor(),
+                        o.getShoes().get(i).getQuantity(),
+                        o.getShoes().get(i).getCategoriesNames(),
+                        o.getShoes().get(i).getPrice());
+            }
+            System.out.printf("| %-71s |%n", "Kund: " + o.getCustomer().getFirstname() + " " + o.getCustomer().getLastname() + " Ordernr: " + o.getId());
+            System.out.printf("---------------------------------------------------------------------------%n");
+                } );
     }
 }
 

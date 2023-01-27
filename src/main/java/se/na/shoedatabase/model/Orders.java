@@ -9,7 +9,7 @@ public class Orders {
 
     private final int id;
     private final ArrayList<Shoe> shoes = new ArrayList<>();
-    private final Customer customer = new Customer();
+    private Customer customer;
     public Orders(int id) {
         this.id = id;
     }
@@ -24,4 +24,16 @@ public class Orders {
         return customer;
     }
 
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    @Override
+    public String toString() {
+        return "Orders{" +
+                "id=" + id +
+                ", shoes=" + shoes +
+                ", customer=" + customer +
+                '}';
+    }
 }

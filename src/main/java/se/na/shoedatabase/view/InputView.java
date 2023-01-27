@@ -6,7 +6,15 @@ import java.util.Scanner;
 
 public class InputView {
 
+    private static InputView inputView;
     Scanner scan = new Scanner(System.in);
+
+    public static InputView getInputView() {
+        if (inputView == null) {
+            inputView = new InputView();
+        }
+        return inputView;
+    }
     public int inputInt(String text, boolean showtext) {
         while (true) {
             if(showtext) {

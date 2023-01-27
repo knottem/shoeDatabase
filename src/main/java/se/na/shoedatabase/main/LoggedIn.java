@@ -15,7 +15,7 @@ public class LoggedIn {
     ArrayList<Shoe> shoes;
     Repository rep = new Repository();
     PrintHelp printHelp = new PrintHelp();
-    InputView inputView = new InputView();
+    InputView inputView = InputView.getInputView();
 
     public void newOrder(Customer customer){
         int orderId = 0;

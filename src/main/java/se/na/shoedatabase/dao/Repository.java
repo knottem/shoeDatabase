@@ -9,6 +9,7 @@ import se.na.shoedatabase.utility.Connect;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Repository {
 
@@ -206,4 +207,81 @@ public class Repository {
         }
         return orders;
     }
+
+    public ArrayList<Customer> getAllCustomers() {
+        ArrayList<Customer> customers = new ArrayList<>();
+        String sql = """
+                select customer.id, firstname, lastname, ssn, pass, streetname, streetnumber, zipcode, city from customer
+                inner join address on address.id = addressId""";
+        try (Connection connection = connect.getConnectionDB();
+             PreparedStatement preparedStt = connection.prepareStatement(sql)) {
+            ResultSet rs = preparedStt.executeQuery();
+            while (rs.next()) {
+                 customers.add(new Customer(rs.getInt("id"),
+                        rs.getString("firstname"),
+                        rs.getString("lastname"),
+                        rs.getLong("ssn"),
+                        rs.getString("pass"),
+                        rs.getString("streetname"),
+                        rs.getInt("streetnumber"),
+                        rs.getString("city"),
+                        rs.getInt("zipcode")));
+            }
+            connection.close();
+            rs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return customers;
+    }
+
+    public ArrayList<Orders> getAllOrders(ArrayList<Shoe> shoeArrayList, ArrayList<Customer> customers) {
+        ArrayList<Orders> ordersArrayList = new ArrayList<>();
+        ArrayList<Integer> temp = new ArrayList<>();
+        String sql = """
+                select ordersmap.orderid, ordersmap.quantity, ordersmap.shoeId, orders.customerId from orders
+                inner join ordersmap on orders.id = ordersmap.orderid
+                """;
+        try (Connection con = connect.getConnectionDB();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()){
+                int test = rs.getInt("orderid");
+                temp.add(test);
+                if(ordersArrayList.stream().noneMatch(s -> s.getId() == test)) {
+                    ordersArrayList.add(new Orders(test));
+                }
+                temp.add(rs.getInt("shoeid"));
+                temp.add(rs.getInt("quantity"));
+                temp.add(rs.getInt("customerid"));
+
+            }
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        ordersArrayList.forEach(s -> {
+            for (int i = 0; i < temp.size(); i+=4) {
+                if(s.getId() == temp.get(i)){
+                    for (Shoe shoe : shoeArrayList) {
+                        if (shoe.getId() == temp.get(i + 1)) {
+                            s.getShoes().add(shoe);
+                            for (int j = 0; j < s.getShoes().size(); j++) {
+                                if(s.getShoes().get(j).getId() == temp.get(i+1)){
+                                    s.getShoes().get(j).setQuantity(temp.get(i+2));
+                                }
+                            }
+                        }
+                    }
+                    for (Customer customer : customers) {
+                        if (customer.getId() == temp.get(i + 3)) {
+                            s.setCustomer(customer);
+                        }
+                    }
+                }
+
+            }
+        });
+        return ordersArrayList;
+    }
+
 }
