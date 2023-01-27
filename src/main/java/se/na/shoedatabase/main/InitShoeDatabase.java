@@ -49,47 +49,19 @@ public class InitShoeDatabase {
         ArrayList<Shoe> shoes = rep.getAllShoes();
         Customer customer = rep.getCustomer(ssn, pass);
         if(customer != null){
-            int orderId = 0;
             System.out.println("Välkommen in " + customer.getFirstname() + " " + customer.getLastname());
             while (true) {
                 System.out.println("""
                         Vad vill du göra?
-                        1. Lägg till ny beställning
-                        2. Lägg till beställning till nuvarande beställning
+                        1. Sök på skor
+                        2. Lägg till ny beställning
                         3. Se en specifik order.
                         4. Visa dina ordrar.
                         5. Avsluta""");
                 switch (inputView.inputInt("", false)) {
-                    case 1 -> orderId = loggedIn.newOrder(customer);
-                    case 2 -> {
-                        shoes = rep.getAllShoes();
-                        printHelp.printShoes(shoes);
-                        int answer = inputView.inputInt("Skriv nummer på viken sko du vill beställa:", true);
-                        for (Shoe shoe : shoes) {
-                            if (shoe.getId() == answer) {
-                                System.out.println(shoe + "\när Du säker på att du vill lägga till denna sko till beställningnr " + orderId + "? 1 för ja, 2 för nej");
-                                if (inputView.inputInt("", false) == 1) {
-                                    rep.addOrder(orderId, customer.getId(), shoe.getId());
-                                    System.out.println("Skon tillagt till order " + orderId);
-                                }
-                            }
-                        }
-                    }
-                    case 3 -> {
-                        ArrayList<Orders> orders;
-                        int answer = inputView.inputInt("Vilken order vill du se?, gå till visa dina ordrar för att se dina ordernummer", true);
-                        orders = rep.getOrders(answer, customer.getId());
-                        for (Orders order : orders) {
-                            if (!(order.getShoes().size() == 0)) {
-                                for (int j = 0; j < order.getShoes().size(); j++) {
-                                    System.out.println(order.getShoes().get(j).toString());
-                                }
-                            } else {
-                                System.out.println("Felaktigt ordernummer, försök igen.");
-                            }
-                        }
-
-                    }
+                    case 1 -> loggedIn.searchShoes(shoes);
+                    case 2 -> loggedIn.newOrder(customer);
+                    case 3 -> loggedIn.searchOrders(customer);
                     case 4 -> printHelp.printOrdersList(rep.getOrderNumbers(customer), shoes);
                     case 5 -> System.exit(0);
                     default -> System.out.println("Felaktigt nummer");
