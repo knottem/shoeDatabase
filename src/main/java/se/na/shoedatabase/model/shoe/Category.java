@@ -2,7 +2,7 @@ package se.na.shoedatabase.model.shoe;
 
 public class Category {
 
-    String categoryname;
+    private String categoryname;
 
     public Category(String categoryname) {
         this.categoryname = categoryname;

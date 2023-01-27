@@ -2,12 +2,12 @@ package se.na.shoedatabase.model.customer;
 
 public class Customer {
 
-    int id;
-    String firstname;
-    String lastname;
-    Long ssn;
-    String pass;
-    Address address = new Address();
+    private int id;
+    private String firstname;
+    private String lastname;
+    private Long ssn;
+    private String pass;
+    private Address address = new Address();
 
     public Customer(int id, String firstname, String lastname, Long ssn, String pass, String address, int addressNumber, String city, int zipcode) {
         this.id = id;

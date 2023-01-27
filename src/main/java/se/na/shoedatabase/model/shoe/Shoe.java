@@ -8,8 +8,8 @@ public class Shoe {
     private final int price;
     private final int size;
     private int quantity;
-    Brand brand = new Brand();
-    Color color = new Color();
+    private final Brand brand = new Brand();
+    private final Color color = new Color();
     ArrayList<Category> categories = new ArrayList<>();
 
 
@@ -51,15 +51,23 @@ public class Shoe {
 
     @Override
     public String toString() {
-        return "Märke: " + brand + " Färg: " + color + " Storlek: " + size + " Pris: " + price;
+        return "Märke: " + brand.getBrand() + " Färg: " + color.getColor() + " Storlek: " + size + " Kategori: " + getCategoriesNames() + " Pris: " + price;
     }
 
     public String toStringWithQuantity(){
-        return "Märke: " + brand + " Färg: " + color + " Storlek: " + size + " Pris: " + price + " Antal: " + quantity;
+        return "Märke: " + brand.getBrand() + " Färg: " + color.getColor() + " Storlek: " + size + " Kategori: " + getCategoriesNames() + " Pris: " + price + " Antal: " + quantity;
     }
 
     public ArrayList<Category> getCategories() {
         return categories;
+    }
+    public StringBuilder getCategoriesNames(){
+        StringBuilder cat = new StringBuilder();
+        for(Category category : categories){
+            cat.append(category.getCategoryname()).append(", ");
+        }
+        cat.setLength((cat.length()-2));
+        return cat;
     }
 
     public void setCategories(ArrayList<Category> categories) {

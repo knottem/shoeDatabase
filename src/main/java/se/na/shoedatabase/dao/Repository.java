@@ -17,8 +17,10 @@ public class Repository {
 
     public Customer getCustomer(Long answer, String pass) {
         Customer customer = null;
-        String sql = "select customer.id, firstname, lastname, ssn, pass, streetname, streetnumber, zipcode, city from customer \n" +
-                "inner join address on address.id = addressId where ssn=? and pass=?";
+        String sql = """
+                select customer.id, firstname, lastname, ssn, pass, streetname, streetnumber, zipcode, city from customer
+                inner join address on address.id = addressId
+                where ssn=? and pass=?""";
         try (Connection connection = connect.getConnectionDB();
              PreparedStatement preparedStt = connection.prepareStatement(sql)){
             preparedStt.setLong(1, answer);
@@ -40,11 +42,7 @@ public class Repository {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(customer != null) {
-            return customer;
-        } else {
-            return null;
-        }
+        return customer;
     }
 
     public int addOrder(int orderid, int customerid, int shoeid){
@@ -128,6 +126,30 @@ public class Repository {
         return shoes;
     }
 
+    public ArrayList<Integer> getOrderNumbers(Customer customer){
+        ArrayList<Integer> test = new ArrayList<>();
+        String sql = """
+                select orders.id, orders.created, shoeid, quantity from orders
+                inner join ordersmap o on orders.id = o.orderId
+                where orders.customerId=?
+                """;
+        try(Connection con = connect.getConnectionDB();
+            PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, customer.getId());
+            ResultSet rs = stmt.executeQuery();
+
+            while(rs.next()){
+                test.add(rs.getInt("id"));
+                test.add(rs.getInt("shoeid"));
+                test.add(rs.getInt("quantity"));
+            }
+
+
+        } catch (SQLException | IOException e){
+            e.printStackTrace();
+        }
+        return test;
+    }
     public ArrayList<Orders> getOrders(int orderid, int customerid) {
         ArrayList<Orders> orders = new ArrayList<>();
         orders.add(new Orders(orderid));
@@ -139,6 +161,11 @@ public class Repository {
                 inner join shoecolor on colorid = shoecolor.id
                 inner join shoesize on sizeid = shoesize.id
                 where orders.Id = ? and orders.customerId = ?""";
+        String sql2 = """
+                select category.name, categorymap.shoeid from category
+                inner join categorymap on category.id = categorymap.categoryid
+                inner join shoe on shoe.id = categorymap.shoeid
+                """;
         try (Connection con = connect.getConnectionDB();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setInt(1, orderid);
@@ -156,9 +183,24 @@ public class Repository {
                                 rs.getInt("quantity")));
                     }
                 }
-
             }
-
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        try (Connection con = connect.getConnectionDB();
+             PreparedStatement stmt = con.prepareStatement(sql2)) {
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()){
+                for (Orders order : orders) {
+                    if (order.getId() == orderid){
+                        for (int i = 0; i < order.getShoes().size(); i++) {
+                            if (rs.getInt("shoeid") == order.getShoes().get(i).getId()) {
+                                order.getShoes().get(i).getCategories().add(new Category(rs.getString("name")));
+                            }
+                        }
+                    }
+                }
+            }
         } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
