@@ -145,9 +145,24 @@ public class Rapports {
 
     }
     private void listSpendingPerCity(){
+        //Ful variant
         ArrayList<Address> addresses = new ArrayList<>();
         orders.forEach(o -> {
-            o.getCustomer().getAddress().getCity();
+            if(addresses.stream().noneMatch(s -> s.getCity().equals(o.getCustomer().getAddress().getCity()))){
+                addresses.add(new Address(o.getCustomer().getAddress().getCity()));
+            }
+            for (int i = 0; i < addresses.size(); i++) {
+                if(o.getCustomer().getAddress().getCity().equals(addresses.get(i).getCity())){
+                    for (int j = 0; j < o.getShoes().size(); j++) {
+                        addresses.get(i).setZipcode(addresses.get(i).getZipcode() + o.getShoes().get(j).getPrice());
+                    }
+                }
+            }
+        });
+        addresses.sort((s1, s2) -> s2.getZipcode() - s1.getZipcode());
+        System.out.println("\nMest sålda i städerna:\n");
+        addresses.forEach(s -> {
+            System.out.println("Postadress: " + s.getCity() + " Total Summa: " + s.getZipcode() + " kr\n");
         });
     }
     private void listTopSellingShoes(int antal){
