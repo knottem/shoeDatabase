@@ -1,4 +1,4 @@
-package se.na.shoedatabase.utility;
+package se.na.shoedatabase.dao;
 
 import java.io.FileInputStream;
 import java.io.IOException;

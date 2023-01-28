@@ -4,17 +4,25 @@ import se.na.shoedatabase.model.shoe.Category;
 import se.na.shoedatabase.model.customer.Customer;
 import se.na.shoedatabase.model.Orders;
 import se.na.shoedatabase.model.shoe.Shoe;
-import se.na.shoedatabase.utility.Connect;
 
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class Repository {
 
     ArrayList<Shoe> shoes = new ArrayList<>();
     Connect connect = new Connect();
+
+    private static Repository repository;
+
+    public static Repository getRepository() {
+        if (repository == null) {
+            repository = new Repository();
+        }
+        return repository;
+    }
+
 
     public Customer getCustomer(Long answer, String pass) {
         Customer customer = null;
@@ -151,9 +159,56 @@ public class Repository {
         }
         return test;
     }
+    public ArrayList<Orders> getOrdersForCustomer(Customer customer, ArrayList<Shoe> shoeArrayList){
+        ArrayList<Integer> temp = new ArrayList<>();
+        ArrayList<Orders> ordersArrayList = new ArrayList<>();
+        String sql = """
+                select ordersmap.orderid, ordersmap.shoeId, ordersmap.quantity, ordersmap.created from orders
+                inner join ordersmap on orders.id = ordersmap.orderid
+                where customerId = ?
+                """;
+        try(Connection con = connect.getConnectionDB();
+            PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, customer.getId());
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()){
+                int test = rs.getInt("orderid");
+                Timestamp timestamp = rs.getTimestamp("created");
+                temp.add(test);
+                if(ordersArrayList.stream().noneMatch(s -> s.getId() == test)) {
+                    ordersArrayList.add(new Orders(test, timestamp));
+                }
+                temp.add(rs.getInt("shoeid"));
+                temp.add(rs.getInt("quantity"));
+            }
+            ordersArrayList.forEach(s -> {
+                for (int i = 0; i < temp.size(); i+=3) {
+                    if(s.getId() == temp.get(i)){
+                        for (Shoe shoe : shoeArrayList) {
+                            if (shoe.getId() == temp.get(i + 1)) {
+                                s.getShoes().add(shoe);
+                                for (int j = 0; j < s.getShoes().size(); j++) {
+                                    if(s.getShoes().get(j).getId() == temp.get(i+1)){
+                                        s.getShoes().get(j).setQuantity(temp.get(i+2));
+                                    }
+                                }
+                            }
+                        }
+                        s.setCustomer(customer);
+                    }
+                }
+            });
+
+
+        } catch (SQLException | IOException e){
+            e.printStackTrace();
+        }
+        return ordersArrayList;
+    }
     public ArrayList<Orders> getOrders(int orderid, int customerid) {
         ArrayList<Orders> orders = new ArrayList<>();
-        orders.add(new Orders(orderid));
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        orders.add(new Orders(orderid, timestamp));
         String sql = """
                 select shoe.id, shoebrand.name, shoecolor.colorswe, shoesize.euSize, ordersmap.quantity, shoe.price from orders
                 inner join ordersmap on orders.id = ordersmap.orderid
@@ -239,7 +294,7 @@ public class Repository {
         ArrayList<Orders> ordersArrayList = new ArrayList<>();
         ArrayList<Integer> temp = new ArrayList<>();
         String sql = """
-                select ordersmap.orderid, ordersmap.quantity, ordersmap.shoeId, orders.customerId from orders
+                select ordersmap.orderid, ordersmap.shoeId, ordersmap.quantity, orders.customerId, ordersmap.created from orders
                 inner join ordersmap on orders.id = ordersmap.orderid
                 """;
         try (Connection con = connect.getConnectionDB();
@@ -248,8 +303,9 @@ public class Repository {
             while(rs.next()){
                 int test = rs.getInt("orderid");
                 temp.add(test);
+                Timestamp timestamp = rs.getTimestamp("created");
                 if(ordersArrayList.stream().noneMatch(s -> s.getId() == test)) {
-                    ordersArrayList.add(new Orders(test));
+                    ordersArrayList.add(new Orders(test, timestamp));
                 }
                 temp.add(rs.getInt("shoeid"));
                 temp.add(rs.getInt("quantity"));
@@ -278,9 +334,9 @@ public class Repository {
                         }
                     }
                 }
-
             }
         });
+        ordersArrayList.sort((o1, o2) -> (int) o1.getId() - o2.getId());
         return ordersArrayList;
     }
 

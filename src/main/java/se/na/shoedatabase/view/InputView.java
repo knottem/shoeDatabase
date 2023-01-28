@@ -21,9 +21,7 @@ public class InputView {
                 System.out.println(text);
             }
             try {
-                int temp = scan.nextInt();
-                scan.nextLine();
-                return temp;
+                return Integer.parseInt(scan.nextLine());
             } catch (InputMismatchException e) {
                 System.out.println("Förväntade mig ett nummer");
             } catch (NumberFormatException e) {
@@ -38,9 +36,8 @@ public class InputView {
                 System.out.println(text);
             }
             try {
-                long temp = scan.nextLong();
-                scan.nextLine();
-                return temp;
+
+                return Long.parseLong(scan.nextLine());
             } catch (InputMismatchException e) {
                 System.out.println("Förväntade mig ett nummer");
             } catch (NumberFormatException e) {
@@ -50,6 +47,7 @@ public class InputView {
     }
 
     public String inputString(String text, boolean showtext){
+        scan.nextLine();
         if(showtext){
             System.out.println(text);
         }

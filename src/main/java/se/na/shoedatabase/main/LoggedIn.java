@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 public class LoggedIn {
 
     ArrayList<Shoe> shoes;
-    Repository rep = new Repository();
-    PrintHelp printHelp = new PrintHelp();
+    Repository rep = Repository.getRepository();
+    PrintHelp printHelp = PrintHelp.getPrintHelp();
     InputView inputView = InputView.getInputView();
 
     public void newOrder(Customer customer){

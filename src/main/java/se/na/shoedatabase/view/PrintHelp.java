@@ -2,9 +2,21 @@ package se.na.shoedatabase.view;
 
 import se.na.shoedatabase.model.Orders;
 import se.na.shoedatabase.model.shoe.Shoe;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.TimeZone;
 
 public class PrintHelp {
+
+    private static PrintHelp printhelp;
+
+    public static PrintHelp getPrintHelp(){
+       if(printhelp == null){
+           printhelp = new PrintHelp();
+       }
+       return printhelp;
+    }
 
     public void printShoes(ArrayList<Shoe> shoes){
         System.out.printf("----------------------------------------------------------------------------%n");
@@ -36,6 +48,7 @@ public class PrintHelp {
         System.out.printf("| %-2s | %-9s | %7s | %6s | %5s | %-20s | %4s |%n", "Nr", "Märke", "Storlek", "Färg", "Mängd", "Kategori", "Pris");
         System.out.printf("---------------------------------------------------------------------------%n");
         orders.forEach(o -> {
+            int total = 0;
             for (int i = 0; i < o.getShoes().size() ; i++) {
                 System.out.printf("| %-2s | %-9s | %7s | %6s | %5s | %-20s | %4s |%n",
                         o.getShoes().get(i).getId(),
@@ -45,11 +58,16 @@ public class PrintHelp {
                         o.getShoes().get(i).getQuantity(),
                         o.getShoes().get(i).getCategoriesNames(),
                         o.getShoes().get(i).getPrice());
+                total = total + o.getShoes().get(i).getPrice() * o.getShoes().get(i).getQuantity();
+
             }
-            System.out.printf("| %-71s |%n", "Kund: " + o.getCustomer().getFirstname() + " " + o.getCustomer().getLastname() + " Ordernr: " + o.getId());
+            System.out.printf("| %-71s |%n", "Kund: " + o.getCustomer().getFirstname() + " " + o.getCustomer().getLastname()
+                    + ", Ordernr: " + o.getId() + ", Summa: " + total + " kr");
+            System.out.printf("| %-71s |%n", "Datum: " + o.getTimestamp());
             System.out.printf("---------------------------------------------------------------------------%n");
-                } );
+        });
     }
+
 }
 
 
