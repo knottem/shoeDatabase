@@ -1,5 +1,6 @@
 package se.na.shoedatabase.dao;
 
+import se.na.shoedatabase.model.Admin;
 import se.na.shoedatabase.model.shoe.Category;
 import se.na.shoedatabase.model.customer.Customer;
 import se.na.shoedatabase.model.Orders;
@@ -8,6 +9,7 @@ import se.na.shoedatabase.model.shoe.Shoe;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class Repository {
 
@@ -133,31 +135,6 @@ public class Repository {
         }
 
         return shoes;
-    }
-
-    public ArrayList<Integer> getOrderNumbers(Customer customer){
-        ArrayList<Integer> test = new ArrayList<>();
-        String sql = """
-                select orders.id, orders.created, shoeid, quantity from orders
-                inner join ordersmap o on orders.id = o.orderId
-                where orders.customerId=?
-                """;
-        try(Connection con = connect.getConnectionDB();
-            PreparedStatement stmt = con.prepareStatement(sql)) {
-            stmt.setInt(1, customer.getId());
-            ResultSet rs = stmt.executeQuery();
-
-            while(rs.next()){
-                test.add(rs.getInt("id"));
-                test.add(rs.getInt("shoeid"));
-                test.add(rs.getInt("quantity"));
-            }
-
-
-        } catch (SQLException | IOException e){
-            e.printStackTrace();
-        }
-        return test;
     }
     public ArrayList<Orders> getOrdersForCustomer(Customer customer, ArrayList<Shoe> shoeArrayList){
         ArrayList<Integer> temp = new ArrayList<>();
@@ -336,8 +313,27 @@ public class Repository {
                 }
             }
         });
-        ordersArrayList.sort((o1, o2) -> (int) o1.getId() - o2.getId());
+        ordersArrayList.sort(Comparator.comparingInt(Orders::getId));
         return ordersArrayList;
     }
+    public Admin getAdmin(String name, String pass){
+        Admin admin = null;
+        String sql = "select id, name, password from admin where name=? and password=?";
+        try (Connection connection = connect.getConnectionDB();
+             PreparedStatement preparedStt = connection.prepareStatement(sql)){
+            preparedStt.setString(1, name);
+            preparedStt.setString(2, pass);
+            ResultSet rs = preparedStt.executeQuery();
+            while(rs.next()) {
+               admin = new Admin(rs.getInt("id"), rs.getString("name"), rs.getString("password"));
+            }
+            connection.close();
+            rs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return admin;
+    }
+
 
 }

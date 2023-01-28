@@ -47,7 +47,6 @@ public class InputView {
     }
 
     public String inputString(String text, boolean showtext){
-        scan.nextLine();
         if(showtext){
             System.out.println(text);
         }

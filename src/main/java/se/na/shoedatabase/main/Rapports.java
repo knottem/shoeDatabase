@@ -1,6 +1,8 @@
 package se.na.shoedatabase.main;
 
+import se.na.shoedatabase.dao.Encrypt;
 import se.na.shoedatabase.dao.Repository;
+import se.na.shoedatabase.model.Admin;
 import se.na.shoedatabase.model.Orders;
 import se.na.shoedatabase.model.customer.Address;
 import se.na.shoedatabase.model.customer.Customer;
@@ -9,40 +11,47 @@ import se.na.shoedatabase.view.InputView;
 import se.na.shoedatabase.view.PrintHelp;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class Rapports {
 
     Repository rep = Repository.getRepository();
     PrintHelp printHelp = PrintHelp.getPrintHelp();
     InputView inputView = InputView.getInputView();
+    Encrypt encrypt = new Encrypt();
 
     ArrayList<Shoe> shoes = rep.getAllShoes();
     ArrayList<Customer> customers = rep.getAllCustomers();
     ArrayList<Orders> orders = rep.getAllOrders(shoes, customers);
 
     public void checkRapports(){
-        while(true){
-            switch (inputView.inputInt("""
-                    Vilken Rapport vill du titta på?
-                    1. Visa alla kunder som har köpt av visst märke, färg eller storlek.
-                    2. Visa alla kunder och sammanlagda ordrar varje kund lagt.
-                    3. Visa hur mycket varje kund har beställt för
-                    4. Visa beställningsvärde per ort
-                    5. Visa Topplista över mest sålda skor
-                    6. Visa Alla ordrar
-                    7. Avsluta""", true)){
-                case 1 -> listAllBought();
-                case 2 -> listCustomerOrders();
-                case 3 -> listCustomersTotalSpending();
-                case 4 -> listSpendingPerCity();
-                case 5 -> listTopSellingShoes(inputView.inputInt("Hur lång topplista vill du se?", true));
-                case 6 -> printHelp.printAllOrders(orders);
-                case 7 -> System.exit(0);
-                default -> System.out.println("Felaktigt siffra");
+        String user = inputView.inputString("Användarnamn?", true);
+        String password = inputView.inputString("Lösenord?", true);
+        Admin admin = rep.getAdmin(user, Encrypt.encryptSHA3(password));
+        if(admin != null) {
+            boolean repeat = true;
+            while (repeat) {
+                switch (inputView.inputInt("""
+                        Vilken Rapport vill du titta på?
+                        1. Visa alla kunder som har köpt av visst märke, färg eller storlek.
+                        2. Visa alla kunder och sammanlagda ordrar varje kund lagt.
+                        3. Visa hur mycket varje kund har beställt för
+                        4. Visa beställningsvärde per ort
+                        5. Visa Topplista över mest sålda skor
+                        6. Visa Alla ordrar
+                        7. Logga ut""", true)) {
+                    case 1 -> listAllBought();
+                    case 2 -> listCustomerOrders();
+                    case 3 -> listCustomersTotalSpending();
+                    case 4 -> listSpendingPerCity();
+                    case 5 -> listTopSellingShoes(inputView.inputInt("Hur lång topplista vill du se?", true));
+                    case 6 -> printHelp.printAllOrders(orders);
+                    case 7 -> repeat = false;
+                    default -> System.out.println("Felaktigt siffra");
+                }
             }
+        } else {
+            System.out.println("Felaktig inloggningsinformation");
         }
     }
 
@@ -145,7 +154,6 @@ public class Rapports {
 
     }
     private void listSpendingPerCity(){
-        //Ful variant
         ArrayList<Address> addresses = new ArrayList<>();
         orders.forEach(o -> {
             if(addresses.stream().noneMatch(s -> s.getCity().equals(o.getCustomer().getAddress().getCity()))){
