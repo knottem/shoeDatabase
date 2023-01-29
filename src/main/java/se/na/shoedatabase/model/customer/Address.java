@@ -52,6 +52,6 @@ public class Address {
 
     @Override
     public String toString() {
-        return "Address: " + address + " " + addressNumber + "\nPostAdress: " + zipcode + " " + city;
+        return "Address: " + address + " " + addressNumber + "\nPostadress " + zipcode + " " + city;
     }
 }

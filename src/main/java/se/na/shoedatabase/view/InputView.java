@@ -36,7 +36,6 @@ public class InputView {
                 System.out.println(text);
             }
             try {
-
                 return Long.parseLong(scan.nextLine());
             } catch (InputMismatchException e) {
                 System.out.println("Förväntade mig ett nummer");

@@ -1,5 +1,6 @@
 package se.na.shoedatabase.main;
 
+import se.na.shoedatabase.dao.Encrypt;
 import se.na.shoedatabase.dao.Repository;
 import se.na.shoedatabase.model.customer.Customer;
 import se.na.shoedatabase.model.shoe.Shoe;
@@ -19,7 +20,7 @@ public class InitShoeDatabase {
     public void Program(){
 
         System.out.println("Välkommen till skobutiken");
-        do{
+        while(true){
             System.out.println("""
             Vad vill du göra?
             1. Logga in
@@ -34,18 +35,17 @@ public class InitShoeDatabase {
                 case 4 -> System.exit(0);
                 default -> System.out.println("Felaktig Siffra");
             }
-        } while (true);
+        }
     }
     private void login(){
-        /*
-        long ssn = inputView.inputLong("Vad är ditt personnummer?", true);
-        String pass = inputView.inputString("Vad är ditt lösenord?",true);
+
+        /*Customer customer = rep.getCustomer(
+                inputView.inputLong("Vad är ditt personnummer?", true),
+                Encrypt.encryptSHA3(inputView.inputString("Vad är ditt lösenord?",true)));
 
          */
         //temp
-        long ssn = 9901011234L;
-        String pass = "123";
-        Customer customer = rep.getCustomer(ssn, pass);
+        Customer customer = rep.getCustomer(9901011234L, Encrypt.encryptSHA3("123"));
         boolean repeat = true;
         if(customer != null){
             ArrayList<Shoe> shoes = rep.getAllShoes();
@@ -75,6 +75,7 @@ public class InitShoeDatabase {
     }
 
     private void createUser(){
+
 
     }
 }

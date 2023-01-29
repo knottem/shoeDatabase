@@ -12,6 +12,7 @@ public class Orders {
     private final ArrayList<Shoe> shoes = new ArrayList<>();
     private Customer customer;
     private final Timestamp timestamp;
+
     public Orders(int id, Timestamp timestamp) {
         this.id = id;
         this.timestamp = timestamp;

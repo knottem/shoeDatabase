@@ -18,16 +18,15 @@ public class Rapports {
     Repository rep = Repository.getRepository();
     PrintHelp printHelp = PrintHelp.getPrintHelp();
     InputView inputView = InputView.getInputView();
-    Encrypt encrypt = new Encrypt();
 
     ArrayList<Shoe> shoes = rep.getAllShoes();
     ArrayList<Customer> customers = rep.getAllCustomers();
     ArrayList<Orders> orders = rep.getAllOrders(shoes, customers);
 
     public void checkRapports(){
-        String user = inputView.inputString("Användarnamn?", true);
-        String password = inputView.inputString("Lösenord?", true);
-        Admin admin = rep.getAdmin(user, Encrypt.encryptSHA3(password));
+        Admin admin = rep.getAdmin(
+                inputView.inputString("Användarnamn?", true),
+                Encrypt.encryptSHA3(inputView.inputString("Lösenord?", true)));
         if(admin != null) {
             boolean repeat = true;
             while (repeat) {
@@ -75,10 +74,8 @@ public class Rapports {
                        }
                    }
                    return false;
-                }).forEach(a -> {
-                  temp.add("Namn: " + a.getCustomer().getFirstname() + " " + a.getCustomer().getLastname() + "\n" +
-                          a.getCustomer().getAddress().toString() + "\n");
-                });
+                }).forEach(a -> temp.add("Namn: " + a.getCustomer().getFirstname() + " " + a.getCustomer().getLastname() + "\n" +
+                        a.getCustomer().getAddress().toString() + "\n"));
                 temp.stream().distinct().forEach(System.out::println);
             }
 
@@ -95,13 +92,12 @@ public class Rapports {
                         }
                     }
                     return false;
-                }).forEach(a -> {
+                }).forEach(a ->
                     temp.add("Namn: " + a.getCustomer().getFirstname() + " " + a.getCustomer().getLastname() + "\n" +
-                            a.getCustomer().getAddress().toString() + "\n");
-                });
+                            a.getCustomer().getAddress().toString() + "\n"));
                 temp.stream().distinct().forEach(System.out::println);
-
             }
+
             case 3 -> {
                 ArrayList<String> temp = new ArrayList<>();
                 System.out.println("Skriv en Storlek:");
@@ -114,12 +110,9 @@ public class Rapports {
                         }
                     }
                     return false;
-                }).forEach(a -> {
-                    temp.add("Namn: " + a.getCustomer().getFirstname() + " " + a.getCustomer().getLastname() + "\n" +
-                            a.getCustomer().getAddress().toString() + "\n");
-                });
+                }).forEach(a -> temp.add("Namn: " + a.getCustomer().getFirstname() + " " + a.getCustomer().getLastname() + "\n" +
+                        a.getCustomer().getAddress().toString() + "\n"));
                 temp.stream().distinct().forEach(System.out::println);
-
             }
             default -> System.out.println("Felaktigt siffra");
         }
@@ -159,19 +152,17 @@ public class Rapports {
             if(addresses.stream().noneMatch(s -> s.getCity().equals(o.getCustomer().getAddress().getCity()))){
                 addresses.add(new Address(o.getCustomer().getAddress().getCity()));
             }
-            for (int i = 0; i < addresses.size(); i++) {
-                if(o.getCustomer().getAddress().getCity().equals(addresses.get(i).getCity())){
+            for (Address address : addresses) {
+                if (o.getCustomer().getAddress().getCity().equals(address.getCity())) {
                     for (int j = 0; j < o.getShoes().size(); j++) {
-                        addresses.get(i).setZipcode(addresses.get(i).getZipcode() + o.getShoes().get(j).getPrice());
+                        address.setZipcode(address.getZipcode() + o.getShoes().get(j).getPrice());
                     }
                 }
             }
         });
         addresses.sort((s1, s2) -> s2.getZipcode() - s1.getZipcode());
         System.out.println("\nMest sålda i städerna:\n");
-        addresses.forEach(s -> {
-            System.out.println("Postadress: " + s.getCity() + " Total Summa: " + s.getZipcode() + " kr\n");
-        });
+        addresses.forEach(s -> System.out.println("Postadress: " + s.getCity() + " Total Summa: " + s.getZipcode() + " kr\n"));
     }
     private void listTopSellingShoes(int antal){
         ArrayList<Shoe> shoesList = new ArrayList<>();
@@ -190,14 +181,13 @@ public class Rapports {
         });
         shoesList.sort((s1, s2) -> s2.getQuantity() - s1.getQuantity());
         System.out.println("\nTop " + antal + " mest sålda skor:\n");
-        shoesList.stream().limit(antal).forEach(s -> {
-            System.out.println("Märke: " + s.getBrand() +
-                    "\nStorlek: " + s.getSize() +
-                    "\nFärg: " + s.getColor() +
-                    "\nKategori: " + s.getCategoriesNames() +
-                    "\nPris: " + s.getPrice() + " kr" +
-                    "\nTotal Summa: " + s.getPrice()*s.getQuantity() + " kr" +
-                    "\nAntal Sålda: " + s.getQuantity() + "\n");
-        });
+        shoesList.stream().limit(antal).forEach(s -> System.out.println(
+                "Märke: " + s.getBrand() +
+                "\nStorlek: " + s.getSize() +
+                "\nFärg: " + s.getColor() +
+                "\nKategori: " + s.getCategoriesNames() +
+                "\nPris: " + s.getPrice() + " kr" +
+                "\nTotal Summa: " + s.getPrice()*s.getQuantity() + " kr" +
+                "\nAntal Sålda: " + s.getQuantity() + "\n"));
     }
 }
