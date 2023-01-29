@@ -19,15 +19,18 @@ public class Rapports {
     PrintHelp printHelp = PrintHelp.getPrintHelp();
     InputView inputView = InputView.getInputView();
 
-    ArrayList<Shoe> shoes = rep.getAllShoes();
-    ArrayList<Customer> customers = rep.getAllCustomers();
-    ArrayList<Orders> orders = rep.getAllOrders(shoes, customers);
+    ArrayList<Shoe> shoes;
+    ArrayList<Customer> customers;
+    ArrayList<Orders> orders;
 
     public void checkRapports(){
         Admin admin = rep.getAdmin(
                 inputView.inputString("Användarnamn?", true),
                 Encrypt.encryptSHA3(inputView.inputString("Lösenord?", true)));
         if(admin != null) {
+            shoes = rep.getAllShoes();
+            customers = rep.getAllCustomers();
+            orders = rep.getAllOrders(shoes, customers);
             boolean repeat = true;
             while (repeat) {
                 switch (inputView.inputInt("""

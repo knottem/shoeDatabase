@@ -334,6 +334,57 @@ public class Repository {
         }
         return admin;
     }
+    public Customer insertNewCustomer(String firstname, String lastname, Long ssn, String pass,
+                                      String address, int gatuAddress, int postnummer, String postort) {
+        int id = 0;
+        try(Connection connection = connect.getConnectionDB();
+            PreparedStatement ps = connection.prepareStatement("select * from customer where ssn=?")) {
+            ps.setLong(1, ssn);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                System.out.println("Customer med personummer: " + ssn + " finns redan.");
+            } else {
+                try (PreparedStatement ps4 = connection.prepareStatement("select id from address where streetname=? and streetnumber=? and zipcode=? and city=?")) {
+                    ps4.setString(1, address);
+                    ps4.setInt(2, gatuAddress);
+                    ps4.setInt(3, postnummer);
+                    ps4.setString(4, postort);
+                    ResultSet rs4 = ps4.executeQuery();
+                    if (rs4.next()) {
+                        id = rs4.getInt("id");
+                    } else {
+                        rs.close();
+                        PreparedStatement ps2 = connection.prepareStatement("insert into address (streetname, streetnumber, zipcode, city) VALUES (?,?,?,?)",
+                                Statement.RETURN_GENERATED_KEYS);
+                        ps2.setString(1, address);
+                        ps2.setInt(2, gatuAddress);
+                        ps2.setInt(3, postnummer);
+                        ps2.setString(4, postort);
+                        ps2.execute();
+                        ResultSet rs2 = ps2.getGeneratedKeys();
+                        while (rs2.next()) {
+                            id = rs2.getInt(1);
+                        }
+                        ps2.close();
+                        rs2.close();
+                    }
+                    rs4.close();
 
+                    PreparedStatement ps3 = connection.prepareStatement("insert into customer (firstname, lastname, ssn, addressId, pass) values (?,?,?,?,?)");
+                    ps3.setString(1, firstname);
+                    ps3.setString(2, lastname);
+                    ps3.setLong(3, ssn);
+                    ps3.setInt(4, id);
+                    ps3.setString(5, pass);
+                    ps3.execute();
 
+                    ps3.close();
+                }
+            }
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return getCustomer(ssn, pass);
+    }
 }

@@ -39,17 +39,12 @@ public class InitShoeDatabase {
     }
     private void login(){
 
-        /*Customer customer = rep.getCustomer(
-                inputView.inputLong("Vad är ditt personnummer?", true),
-                Encrypt.encryptSHA3(inputView.inputString("Vad är ditt lösenord?",true)));
-
-         */
-        //temp
-        Customer customer = rep.getCustomer(9901011234L, Encrypt.encryptSHA3("123"));
-        boolean repeat = true;
+        Customer customer = rep.getCustomer(inputView.inputLong("Vad är ditt personnummer?", true), Encrypt.encryptSHA3(inputView.inputString("Vad är ditt lösenord?",true)));
+        //Customer customer = rep.getCustomer(9901011234L, Encrypt.encryptSHA3("123"));
         if(customer != null){
             ArrayList<Shoe> shoes = rep.getAllShoes();
             System.out.println("Välkommen in " + customer.getFirstname() + " " + customer.getLastname());
+            boolean repeat = true;
             while (repeat) {
                 System.out.println("""
                         Vad vill du göra?
@@ -70,12 +65,31 @@ public class InitShoeDatabase {
         } else {
             System.out.println("Användare finns ej / fel lösenord");
         }
-
-
     }
 
-    private void createUser(){
-
+    private void createUser() {
+        String firstname = inputView.inputString("Förnamn?", true);
+        String lastname = inputView.inputString("Efternamn?", true);
+        Long ssn = inputView.inputLong("Personnummer? (10 siffror)", true);
+        String adress = inputView.inputString("Gata du bor på?", true);
+        int gatuAdress = inputView.inputInt("gatunummer?", true);
+        int postnummer = inputView.inputInt("Postnummer?", true);
+        String postort = inputView.inputString("Postort?", true);
+        while (true) {
+        String password = inputView.inputString("Lösenord?", true);
+        String password2 = inputView.inputString("Skriv lösenordet igen.", true);
+        if (password2.equals(password)) {
+            Customer customer = rep.insertNewCustomer(firstname, lastname, ssn, Encrypt.encryptSHA3(password), adress, gatuAdress, postnummer, postort);
+            if(customer != null){
+                System.out.println("Skapande av kund gick bra\n");
+            } else {
+                System.out.println("Något gick fel, försök igen\n");
+            }
+            break;
+        } else{
+            System.out.println("Lösenordet var inte samma, försök igen");
+        }
+    }
 
     }
 }

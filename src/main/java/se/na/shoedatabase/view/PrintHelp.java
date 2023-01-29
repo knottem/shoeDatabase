@@ -2,10 +2,9 @@ package se.na.shoedatabase.view;
 
 import se.na.shoedatabase.model.Orders;
 import se.na.shoedatabase.model.shoe.Shoe;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.TimeZone;
+import java.util.Comparator;
+
 
 public class PrintHelp {
 
@@ -19,6 +18,7 @@ public class PrintHelp {
     }
 
     public void printShoes(ArrayList<Shoe> shoes){
+        shoes.sort(Comparator.comparingInt(Shoe::getId));
         System.out.printf("----------------------------------------------------------------------------%n");
         System.out.printf("| %-2s | %-9s | %7s | %6s | %5s | %-20s | %4s |%n", "Nr", "Märke", "Storlek", "Färg", "Mängd", "Kategori", "Pris");
         System.out.printf("----------------------------------------------------------------------------%n");
