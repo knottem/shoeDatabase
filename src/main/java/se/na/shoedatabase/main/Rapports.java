@@ -46,7 +46,9 @@ public class Rapports {
                     case 2 -> listCustomerOrders();
                     case 3 -> listCustomersTotalSpending();
                     case 4 -> listSpendingPerCity();
-                    case 5 -> listTopSellingShoes(inputView.inputInt("Hur lång topplista vill du se?", true));
+                    case 5 -> listTopSellingShoes(
+                            inputView.inputInt("Hur lång topplista vill du se?", true),
+                            inputView.inputInt("Vill du se topplista på skor som sålt för mest pengar totalt (1) eller  antal skor sålda (2)  (svara 1, 2)", true));
                     case 6 -> printHelp.printAllOrders(orders);
                     case 7 -> repeat = false;
                     default -> System.out.println("Felaktigt siffra");
@@ -120,6 +122,7 @@ public class Rapports {
             default -> System.out.println("Felaktigt siffra");
         }
     }
+
     private void listCustomerOrders(){
         AtomicInteger totalOrders = new AtomicInteger();
         customers.forEach(c -> {
@@ -133,6 +136,7 @@ public class Rapports {
                     c.getAddress().toString() + "\nAntal ordrar: " + totalOrders + "\n");
         });
     }
+
     private void listCustomersTotalSpending(){
         AtomicInteger totalSpending = new AtomicInteger();
         customers.forEach(c -> {
@@ -149,6 +153,7 @@ public class Rapports {
         });
 
     }
+
     private void listSpendingPerCity(){
         ArrayList<Address> addresses = new ArrayList<>();
         orders.forEach(o -> {
@@ -167,7 +172,8 @@ public class Rapports {
         System.out.println("\nMest sålda i städerna:\n");
         addresses.forEach(s -> System.out.println("Postadress: " + s.getCity() + " Total Summa: " + s.getZipcode() + " kr\n"));
     }
-    private void listTopSellingShoes(int antal){
+
+    private void listTopSellingShoes(int antal, int totalsumma){
         ArrayList<Shoe> shoesList = new ArrayList<>();
         orders.forEach(o -> {
             for (int i = 0; i < o.getShoes().size(); i++) {
@@ -182,7 +188,12 @@ public class Rapports {
                 }
             }
         });
-        shoesList.sort((s1, s2) -> s2.getQuantity() - s1.getQuantity());
+        if(totalsumma == 1){
+            shoesList.sort((s1, s2) -> s2.getQuantity()*s2.getPrice() - s1.getQuantity()*s1.getPrice());
+        } else {
+            shoesList.sort((s1, s2) -> s2.getQuantity() - s1.getQuantity());
+        }
+
         System.out.println("\nTop " + antal + " mest sålda skor:\n");
         shoesList.stream().limit(antal).forEach(s -> System.out.println(
                 "Märke: " + s.getBrand() +
