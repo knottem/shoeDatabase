@@ -11,9 +11,7 @@ import se.na.shoedatabase.view.InputView;
 import se.na.shoedatabase.view.PrintHelp;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
 
 public class Rapports {
 
@@ -45,8 +43,8 @@ public class Rapports {
                         6. Visa Alla ordrar
                         7. Logga ut""", true)) {
                     case 1 -> listAllBought();
-                    case 2 -> listCustomerOrders();
-                    case 3 -> listCustomersTotalSpending();
+                    case 2 -> {listCustomerOrders();listCustomerOrdersV2();}
+                    case 3 -> {listCustomersTotalSpending();listCustomersTotalSpendingV2();}
                     case 4 -> listSpendingPerCity();
                     case 5 -> listTopSellingShoes(
                             inputView.inputInt("Hur lång topplista vill du se?", true),
@@ -135,6 +133,18 @@ public class Rapports {
         });
     }
 
+    private void listCustomerOrdersV2() {
+        customers.stream().sorted((c1, c2) -> {
+                    int totalOrders1 = (int) orders.stream().filter(f -> f.getCustomer().getId() == c1.getId()).count();
+                    int totalOrders2 = (int) orders.stream().filter(f -> f.getCustomer().getId() == c2.getId()).count();
+                    return Integer.compare(totalOrders2, totalOrders1);
+                }).forEach(c -> {
+                    int totalOrders = (int) orders.stream().filter(f -> f.getCustomer().getId() == c.getId()).count();
+                    System.out.println("Name: " + c.getFirstname() + " " + c.getLastname() + "\n" +
+                            c.getAddress().toString() + "\nNumber of orders: " + totalOrders + "\n");
+                });
+    }
+
     private void listCustomersTotalSpending(){
         AtomicInteger totalSpending = new AtomicInteger();
         customers.forEach(c -> {
@@ -147,6 +157,21 @@ public class Rapports {
             System.out.println("Namn: " + c.getFirstname() + " " + c.getLastname() + "\n" +
                     c.getAddress().toString() + "\nTotala Summa: " + totalSpending + " kr.\n");
         });
+    }
+
+    private void listCustomersTotalSpendingV2() {
+        customers.stream().sorted((c1, c2) -> {
+                    int totalSpending1 = orders.stream().filter(f -> f.getCustomer().getId() == c1.getId())
+                            .flatMap(o -> o.getShoes().stream()).mapToInt(shoe -> shoe.getPrice() * shoe.getQuantity()).sum();
+                    int totalSpending2 = orders.stream().filter(f -> f.getCustomer().getId() == c2.getId())
+                            .flatMap(o -> o.getShoes().stream()).mapToInt(shoe -> shoe.getPrice() * shoe.getQuantity()).sum();
+                    return Integer.compare(totalSpending2, totalSpending1);
+                }).forEach(c -> {
+                    int totalSpending = orders.stream().filter(f -> f.getCustomer().getId() == c.getId())
+                            .flatMap(o -> o.getShoes().stream()).mapToInt(shoe -> shoe.getPrice() * shoe.getQuantity()).sum();
+                    System.out.println("Name: " + c.getFirstname() + " " + c.getLastname() + "\n" +
+                            c.getAddress().toString() + "\nTotal spending: " + totalSpending + " kr.\n");
+                });
     }
 
 
