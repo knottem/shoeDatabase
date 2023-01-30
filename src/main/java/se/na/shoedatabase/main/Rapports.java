@@ -11,7 +11,9 @@ import se.na.shoedatabase.view.InputView;
 import se.na.shoedatabase.view.PrintHelp;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 public class Rapports {
 
@@ -127,11 +129,7 @@ public class Rapports {
         AtomicInteger totalOrders = new AtomicInteger();
         customers.forEach(c -> {
             totalOrders.set(0);
-            orders.forEach(o -> {
-                if (c.getId() == o.getCustomer().getId()) {
-                    totalOrders.getAndIncrement();
-                }
-            });
+            orders.stream().filter(f -> f.getCustomer().getId() == c.getId()).forEach(o -> totalOrders.getAndIncrement());
             System.out.println("Namn: " + c.getFirstname() + " " + c.getLastname() + "\n" +
                     c.getAddress().toString() + "\nAntal ordrar: " + totalOrders + "\n");
         });
