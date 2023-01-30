@@ -141,18 +141,16 @@ public class Rapports {
         AtomicInteger totalSpending = new AtomicInteger();
         customers.forEach(c -> {
             totalSpending.set(0);
-            orders.forEach(o -> {
-                if(c.getId() == o.getCustomer().getId()){
-                    for (int i = 0; i < o.getShoes().size() ; i++) {
-                        totalSpending.set(totalSpending.get() + o.getShoes().get(i).getPrice());
-                    }
-                }
-            });
+            orders.stream().filter(f -> f.getCustomer().getId() == c.getId()).forEach(o -> {
+                        for (int i = 0; i < o.getShoes().size(); i++) {
+                            totalSpending.set(totalSpending.get() + o.getShoes().get(i).getPrice()*o.getShoes().get(i).getQuantity());
+                        }
+                    });
             System.out.println("Namn: " + c.getFirstname() + " " + c.getLastname() + "\n" +
                     c.getAddress().toString() + "\nTotala Summa: " + totalSpending + " kr.\n");
         });
-
     }
+
 
     private void listSpendingPerCity(){
         ArrayList<Address> addresses = new ArrayList<>();
@@ -160,17 +158,15 @@ public class Rapports {
             if(addresses.stream().noneMatch(s -> s.getCity().equals(o.getCustomer().getAddress().getCity()))){
                 addresses.add(new Address(o.getCustomer().getAddress().getCity()));
             }
-            for (Address address : addresses) {
-                if (o.getCustomer().getAddress().getCity().equals(address.getCity())) {
-                    for (int j = 0; j < o.getShoes().size(); j++) {
-                        address.setZipcode(address.getZipcode() + o.getShoes().get(j).getPrice());
-                    }
+            addresses.stream().filter(f -> f.getCity().equals(o.getCustomer().getAddress().getCity())).forEach(a -> {
+                for (int i = 0; i < o.getShoes().size() ; i++) {
+                    a.setZipcode(a.getZipcode() + o.getShoes().get(i).getPrice()*o.getShoes().get(i).getQuantity());
                 }
-            }
+            });
         });
         addresses.sort((s1, s2) -> s2.getZipcode() - s1.getZipcode());
         System.out.println("\nMest sålda i städerna:\n");
-        addresses.forEach(s -> System.out.println("Postadress: " + s.getCity() + " Total Summa: " + s.getZipcode() + " kr\n"));
+        addresses.forEach(s -> System.out.println("Postort: " + s.getCity() + " Total Summa: " + s.getZipcode() + " kr\n"));
     }
 
     private void listTopSellingShoes(int antal, int totalsumma){
@@ -181,11 +177,7 @@ public class Rapports {
                 if(shoesList.stream().noneMatch(s -> s.getId() == o.getShoes().get(finalI).getId())) {
                    shoesList.add(o.getShoes().get(finalI));
                 }
-                for (Shoe shoe : shoesList) {
-                    if (o.getShoes().get(finalI).getId() == shoe.getId()) {
-                        shoe.setQuantity(shoe.getQuantity() + 1);
-                    }
-                }
+                shoesList.stream().filter(f -> f.getId() == o.getShoes().get(finalI).getId()).forEach(s -> s.setQuantity(s.getQuantity() + 1));
             }
         });
         if(totalsumma == 1){
