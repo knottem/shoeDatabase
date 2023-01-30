@@ -43,8 +43,22 @@ public class Rapports {
                         6. Visa Alla ordrar
                         7. Logga ut""", true)) {
                     case 1 -> listAllBought();
-                    case 2 -> {listCustomerOrders();listCustomerOrdersV2();}
-                    case 3 -> {listCustomersTotalSpending();listCustomersTotalSpendingV2();}
+                    case 2 -> {
+                        int svar = inputView.inputInt("Sorterad lista eller inte, svara 1 för sorterad", true);
+                        if(svar == 1){
+                            listCustomerOrdersSorted();
+                        } else {
+                            listCustomerOrders();
+                        }
+                    }
+                    case 3 -> {
+                        int svar = inputView.inputInt("Sorterad lista eller inte, svara 1 för sorterad", true);
+                        if (svar == 1) {
+                            listCustomersTotalSpendingSorted();
+                        } else {
+                            listCustomersTotalSpending();
+                        }
+                    }
                     case 4 -> listSpendingPerCity();
                     case 5 -> listTopSellingShoes(
                             inputView.inputInt("Hur lång topplista vill du se?", true),
@@ -133,7 +147,7 @@ public class Rapports {
         });
     }
 
-    private void listCustomerOrdersV2() {
+    private void listCustomerOrdersSorted() {
         customers.stream().sorted((c1, c2) -> {
                     int totalOrders1 = (int) orders.stream().filter(f -> f.getCustomer().getId() == c1.getId()).count();
                     int totalOrders2 = (int) orders.stream().filter(f -> f.getCustomer().getId() == c2.getId()).count();
@@ -159,21 +173,20 @@ public class Rapports {
         });
     }
 
-    private void listCustomersTotalSpendingV2() {
+    private void listCustomersTotalSpendingSorted() {
         customers.stream().sorted((c1, c2) -> {
                     int totalSpending1 = orders.stream().filter(f -> f.getCustomer().getId() == c1.getId())
-                            .flatMap(o -> o.getShoes().stream()).mapToInt(shoe -> shoe.getPrice() * shoe.getQuantity()).sum();
+                            .flatMap(o -> o.getShoes().stream()).mapToInt(s -> s.getPrice() * s.getQuantity()).sum();
                     int totalSpending2 = orders.stream().filter(f -> f.getCustomer().getId() == c2.getId())
-                            .flatMap(o -> o.getShoes().stream()).mapToInt(shoe -> shoe.getPrice() * shoe.getQuantity()).sum();
+                            .flatMap(o -> o.getShoes().stream()).mapToInt(s -> s.getPrice() * s.getQuantity()).sum();
                     return Integer.compare(totalSpending2, totalSpending1);
                 }).forEach(c -> {
                     int totalSpending = orders.stream().filter(f -> f.getCustomer().getId() == c.getId())
-                            .flatMap(o -> o.getShoes().stream()).mapToInt(shoe -> shoe.getPrice() * shoe.getQuantity()).sum();
+                            .flatMap(o -> o.getShoes().stream()).mapToInt(s -> s.getPrice() * s.getQuantity()).sum();
                     System.out.println("Name: " + c.getFirstname() + " " + c.getLastname() + "\n" +
                             c.getAddress().toString() + "\nTotal spending: " + totalSpending + " kr.\n");
                 });
     }
-
 
     private void listSpendingPerCity(){
         ArrayList<Address> addresses = new ArrayList<>();

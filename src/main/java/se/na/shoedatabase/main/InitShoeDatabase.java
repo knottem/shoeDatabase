@@ -72,14 +72,14 @@ public class InitShoeDatabase {
         String lastname = inputView.inputString("Efternamn?", true);
         Long ssn = inputView.inputLong("Personnummer? (10 siffror)", true);
         String adress = inputView.inputString("Gata du bor på?", true);
-        int gatuAdress = inputView.inputInt("gatunummer?", true);
+        int gatunummer = inputView.inputInt("gatunummer?", true);
         int postnummer = inputView.inputInt("Postnummer?", true);
         String postort = inputView.inputString("Postort?", true);
         while (true) {
         String password = inputView.inputString("Lösenord?", true);
         String password2 = inputView.inputString("Skriv lösenordet igen.", true);
         if (password2.equals(password)) {
-            Customer customer = rep.insertNewCustomer(firstname, lastname, ssn, Encrypt.encryptSHA3(password), adress, gatuAdress, postnummer, postort);
+            Customer customer = rep.insertNewCustomer(firstname, lastname, ssn, Encrypt.encryptSHA3(password), adress, gatunummer, postnummer, postort);
             if(customer != null){
                 System.out.println("Skapande av kund gick bra\n");
             } else {
