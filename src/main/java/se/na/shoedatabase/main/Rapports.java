@@ -153,9 +153,9 @@ public class Rapports {
                     long totalOrders2 = orders.stream().filter(f -> f.getCustomer().getId() == c2.getId()).count();
                     return Long.compare(totalOrders2, totalOrders1);
                 }).forEach(c -> {
-                    long totalOrders = orders.stream().filter(f -> f.getCustomer().getId() == c.getId()).count();
                     System.out.println("Name: " + c.getFirstname() + " " + c.getLastname() + "\n" +
-                            c.getAddress().toString() + "\nNumber of orders: " + totalOrders + "\n");
+                            c.getAddress().toString() + "\nNumber of orders: " +
+                            orders.stream().filter(f -> f.getCustomer().getId() == c.getId()).count() + "\n");
                 });
     }
 

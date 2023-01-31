@@ -6,7 +6,6 @@ import java.security.NoSuchAlgorithmException;
 
 public class Encrypt {
 
-
     public static String encryptSHA3(String input) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA3-256");
