@@ -1,6 +1,7 @@
 package se.na.shoedatabase.model.shoe;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class Shoe {
 
@@ -61,16 +62,8 @@ public class Shoe {
     public ArrayList<Category> getCategories() {
         return categories;
     }
-    public StringBuilder getCategoriesNames(){
-        StringBuilder cat = new StringBuilder();
-        for(Category category : categories){
-            cat.append(category.getCategoryname()).append(", ");
-        }
-        cat.setLength((cat.length()-2));
-        return cat;
-    }
 
-    public void setCategories(ArrayList<Category> categories) {
-        this.categories = categories;
+    public String getCategoriesNames(){
+        return categories.stream().map(Category::getCategoryname).sorted().collect(Collectors.joining(", "));
     }
 }

@@ -149,11 +149,11 @@ public class Rapports {
 
     private void listCustomerOrdersSorted() {
         customers.stream().sorted((c1, c2) -> {
-                    int totalOrders1 = (int) orders.stream().filter(f -> f.getCustomer().getId() == c1.getId()).count();
-                    int totalOrders2 = (int) orders.stream().filter(f -> f.getCustomer().getId() == c2.getId()).count();
-                    return Integer.compare(totalOrders2, totalOrders1);
+                    long totalOrders1 = orders.stream().filter(f -> f.getCustomer().getId() == c1.getId()).count();
+                    long totalOrders2 = orders.stream().filter(f -> f.getCustomer().getId() == c2.getId()).count();
+                    return Long.compare(totalOrders2, totalOrders1);
                 }).forEach(c -> {
-                    int totalOrders = (int) orders.stream().filter(f -> f.getCustomer().getId() == c.getId()).count();
+                    long totalOrders = orders.stream().filter(f -> f.getCustomer().getId() == c.getId()).count();
                     System.out.println("Name: " + c.getFirstname() + " " + c.getLastname() + "\n" +
                             c.getAddress().toString() + "\nNumber of orders: " + totalOrders + "\n");
                 });
@@ -175,14 +175,14 @@ public class Rapports {
 
     private void listCustomersTotalSpendingSorted() {
         customers.stream().sorted((c1, c2) -> {
-                    int totalSpending1 = orders.stream().filter(f -> f.getCustomer().getId() == c1.getId())
-                            .flatMap(o -> o.getShoes().stream()).mapToInt(s -> s.getPrice() * s.getQuantity()).sum();
-                    int totalSpending2 = orders.stream().filter(f -> f.getCustomer().getId() == c2.getId())
-                            .flatMap(o -> o.getShoes().stream()).mapToInt(s -> s.getPrice() * s.getQuantity()).sum();
-                    return Integer.compare(totalSpending2, totalSpending1);
+                    double totalSpending1 = orders.stream().filter(f -> f.getCustomer().getId() == c1.getId())
+                            .flatMap(o -> o.getShoes().stream()).mapToDouble(s -> s.getPrice() * s.getQuantity()).sum();
+                    double totalSpending2 = orders.stream().filter(f -> f.getCustomer().getId() == c2.getId())
+                            .flatMap(o -> o.getShoes().stream()).mapToDouble(s -> s.getPrice() * s.getQuantity()).sum();
+                    return Double.compare(totalSpending2, totalSpending1);
                 }).forEach(c -> {
-                    int totalSpending = orders.stream().filter(f -> f.getCustomer().getId() == c.getId())
-                            .flatMap(o -> o.getShoes().stream()).mapToInt(s -> s.getPrice() * s.getQuantity()).sum();
+                    double totalSpending = orders.stream().filter(f -> f.getCustomer().getId() == c.getId())
+                            .flatMap(o -> o.getShoes().stream()).mapToDouble(s -> s.getPrice() * s.getQuantity()).sum();
                     System.out.println("Name: " + c.getFirstname() + " " + c.getLastname() + "\n" +
                             c.getAddress().toString() + "\nTotal spending: " + totalSpending + " kr.\n");
                 });

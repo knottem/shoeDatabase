@@ -153,7 +153,7 @@ public class Repository {
                 Timestamp timestamp = rs.getTimestamp("created");
                 temp.add(test);
                 if(ordersArrayList.stream().noneMatch(s -> s.getId() == test)) {
-                    ordersArrayList.add(new Orders(test, timestamp));
+                    ordersArrayList.add(new Orders(test, timestamp, customer));
                 }
                 temp.add(rs.getInt("shoeid"));
                 temp.add(rs.getInt("quantity"));
@@ -182,10 +182,10 @@ public class Repository {
         }
         return ordersArrayList;
     }
-    public ArrayList<Orders> getOrders(int orderid, int customerid) {
+    public ArrayList<Orders> getOrders(int orderid, Customer customer) {
         ArrayList<Orders> orders = new ArrayList<>();
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        orders.add(new Orders(orderid, timestamp));
+        orders.add(new Orders(orderid, timestamp, customer));
         String sql = """
                 select shoe.id, shoebrand.name, shoecolor.colorswe, shoesize.euSize, ordersmap.quantity, shoe.price from orders
                 inner join ordersmap on orders.id = ordersmap.orderid
@@ -202,7 +202,7 @@ public class Repository {
         try (Connection con = connect.getConnectionDB();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setInt(1, orderid);
-            stmt.setInt(2, customerid);
+            stmt.setInt(2, customer.getId());
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
                 for (Orders order : orders) {

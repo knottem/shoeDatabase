@@ -13,7 +13,12 @@ public class Orders {
     private Customer customer;
     private final Timestamp timestamp;
 
-    public Orders(int id, Timestamp timestamp) {
+    public Orders(int id, Timestamp timestamp, Customer customer) {
+        this.id = id;
+        this.timestamp = timestamp;
+        this.customer = customer;
+    }
+    public Orders(int id, Timestamp timestamp){
         this.id = id;
         this.timestamp = timestamp;
     }

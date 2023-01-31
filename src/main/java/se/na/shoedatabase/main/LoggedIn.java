@@ -42,15 +42,9 @@ public class LoggedIn {
                         repeatorder = true;
                     } else {
                         ArrayList<Orders> orders;
-                        orders = rep.getOrders(orderId, customer.getId());
-                        System.out.println("-----------------------------------------------------");
+                        orders = rep.getOrders(orderId, customer);
                         System.out.println("Din beställning är gjord med: ");
-                        for (Orders order : orders) {
-                            for (int j = 0; j < order.getShoes().size(); j++) {
-                                System.out.println(order.getShoes().get(j).toStringWithQuantity());
-                            }
-                        }
-                        System.out.println("-----------------------------------------------------");
+                        printHelp.printAllOrders(orders);
                         repeatorder = false;
                     }
                 }
@@ -59,21 +53,14 @@ public class LoggedIn {
     }
 
     public void searchOrders(Customer customer){
-        ArrayList<Orders> orders;
-        orders = rep.getOrders(
+        ArrayList<Orders> orders = rep.getOrders(
                 inputView.inputInt("Vilken order vill du se?, gå till visa dina ordrar för att se dina ordernummer", true),
-                customer.getId());
-        for (Orders order : orders) {
-            if (!(order.getShoes().size() == 0)) {
-                for (int j = 0; j < order.getShoes().size(); j++) {
-                    System.out.println(order.getShoes().get(j).toString());
-                }
-            } else {
-                System.out.println("Felaktigt ordernummer, försök igen.");
-            }
-            System.out.println();
+                customer);
+        if(orders.get(0).getShoes().size() > 0){
+            printHelp.printAllOrders(orders);
+        } else {
+            System.out.println("Felaktigt ordernummer, försök igen.\n");
         }
-
     }
 
     public void searchShoes(ArrayList<Shoe> shoes) {
@@ -99,7 +86,7 @@ public class LoggedIn {
             case 3 -> {
                 answer = inputView.inputString("Skriv en Kategori: ", true);
                 tempShoes = shoes.stream().filter(s ->
-                        s.getCategoriesNames().toString().contains(answer)).collect(Collectors.toCollection(ArrayList::new));
+                        s.getCategoriesNames().contains(answer)).collect(Collectors.toCollection(ArrayList::new));
             }
             case 4 -> {
                 int answerSize = inputView.inputInt("Skriv en storlek: ", true);
