@@ -54,7 +54,7 @@ public class InitShoeDatabase {
                         4. Visa dina ordrar.
                         5. Logga ut""");
                 switch (inputView.inputInt("", false)) {
-                    case 1 -> loggedIn.searchShoes(shoes);
+                    case 1 -> loggedIn.searchShoes();
                     case 2 -> loggedIn.newOrder(customer);
                     case 3 -> loggedIn.searchOrders(customer);
                     case 4 -> printHelp.printAllOrders(rep.getOrdersForCustomer(customer, shoes));

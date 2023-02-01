@@ -4,6 +4,7 @@ import se.na.shoedatabase.dao.Repository;
 import se.na.shoedatabase.model.Orders;
 import se.na.shoedatabase.model.customer.Customer;
 import se.na.shoedatabase.model.shoe.Shoe;
+import se.na.shoedatabase.utility.ShoeSearchInterface;
 import se.na.shoedatabase.view.InputView;
 import se.na.shoedatabase.view.PrintHelp;
 
@@ -16,6 +17,11 @@ public class LoggedIn {
     Repository rep = Repository.getRepository();
     PrintHelp printHelp = PrintHelp.getPrintHelp();
     InputView inputView = InputView.getInputView();
+
+    ShoeSearchInterface colorSearch = (a, b) -> a.getColor().equalsIgnoreCase(b);
+    ShoeSearchInterface brandSearch = (a, b) -> a.getBrand().equalsIgnoreCase(b);
+    ShoeSearchInterface categorySearch = (a, b) -> a.getCategoriesNames().contains(b);
+    ShoeSearchInterface sizeSearch = (a, b) -> Integer.toString(a.getSize()).equalsIgnoreCase(b);
 
     public void newOrder(Customer customer){
         int orderId = 0;
@@ -63,9 +69,8 @@ public class LoggedIn {
         }
     }
 
-    public void searchShoes(ArrayList<Shoe> shoes) {
-        ArrayList<Shoe> tempShoes = null;
-        String answer;
+    public void searchShoes() {
+        shoes = rep.getAllShoes();
         System.out.println("""
                 Vad vill du söka på?
                 1. Färg
@@ -73,35 +78,20 @@ public class LoggedIn {
                 3. Kategori
                 4. Storlek""");
         switch (inputView.inputInt("Svara med siffra", true)) {
-            case 1 -> {
-                answer = inputView.inputString("Skriv en färg:", true);
-                tempShoes = shoes.stream().filter(s ->
-                        s.getColor().equalsIgnoreCase(answer)).collect(Collectors.toCollection(ArrayList::new));
-            }
-            case 2 -> {
-                answer = inputView.inputString("Skriv ett Märke:", true);
-                tempShoes = shoes.stream().filter(s ->
-                        s.getBrand().equalsIgnoreCase(answer)).collect(Collectors.toCollection(ArrayList::new));
-            }
-            case 3 -> {
-                answer = inputView.inputString("Skriv en Kategori: ", true);
-                tempShoes = shoes.stream().filter(s ->
-                        s.getCategoriesNames().contains(answer)).collect(Collectors.toCollection(ArrayList::new));
-            }
-            case 4 -> {
-                int answerSize = inputView.inputInt("Skriv en storlek: ", true);
-                tempShoes = shoes.stream().filter(s ->
-                        s.getSize() == answerSize).collect(Collectors.toCollection(ArrayList::new));
-            }
-
+            case 1 -> searchShoesByInterface(inputView.inputString("Skriv en färg:", true), colorSearch);
+            case 2 -> searchShoesByInterface(inputView.inputString("Skriv ett Märke:", true), brandSearch);
+            case 3 -> searchShoesByInterface(inputView.inputString("Skriv en Kategori: ", true), categorySearch);
+            case 4 -> searchShoesByInterface(inputView.inputString("Skriv en storlek: ", true), sizeSearch);
             default -> System.out.println("Felaktigt nummer");
         }
-        assert tempShoes != null;
-        if(!(tempShoes.size() == 0)){
-            printHelp.printShoes(tempShoes);
+    }
+
+    public void searchShoesByInterface(String answer, ShoeSearchInterface ssi){
+        ArrayList<Shoe> temp = shoes.stream().filter(s -> ssi.search(s, answer)).collect(Collectors.toCollection(ArrayList::new));
+        if(!(temp.size() == 0)){
+            printHelp.printShoes(temp);
         } else {
             System.out.println("Hittade inga skor");
         }
-
     }
 }
