@@ -64,6 +64,6 @@ public class Shoe {
     }
 
     public String getCategoriesNames(){
-        return categories.stream().map(Category::getCategoryname).sorted().collect(Collectors.joining(", "));
+        return categories.stream().map(Category::getCategoryname).collect(Collectors.joining(", "));
     }
 }

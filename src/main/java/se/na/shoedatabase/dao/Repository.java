@@ -116,7 +116,7 @@ public class Repository {
                         rs.getInt("eusize"),
                         rs.getInt("quantity")));
             }
-
+            rs.close();
         } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
@@ -124,12 +124,11 @@ public class Repository {
             PreparedStatement stmt = con.prepareStatement(sql2)) {
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
-                for (Shoe shoe : shoes) {
-                    if (rs.getInt("shoeid") == shoe.getId()) {
-                        shoe.getCategories().add(new Category(rs.getString("name")));
-                    }
-                }
+                int id = rs.getInt("shoeid");
+                String name = rs.getString("name");
+                shoes.stream().filter(f -> f.getId() == id).forEach(s -> s.getCategories().add(new Category(name)));
             }
+            rs.close();
         } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
@@ -175,8 +174,6 @@ public class Repository {
                     }
                 }
             });
-
-
         } catch (SQLException | IOException e){
             e.printStackTrace();
         }

@@ -137,7 +137,7 @@ public class Rapports {
         }
     }
 
-    private void listCustomerOrders(){
+    private void listCustomerOrdersX(){
         AtomicInteger totalOrders = new AtomicInteger();
         customers.forEach(c -> {
             totalOrders.set(0);
@@ -146,31 +146,29 @@ public class Rapports {
                     c.getAddress().toString() + "\nAntal ordrar: " + totalOrders + "\n");
         });
     }
+    private void listCustomerOrders(){
+        customers.forEach(c ->
+            System.out.println("Namn: " + c.getFirstname() + " " + c.getLastname() + "\n" +
+                    c.getAddress().toString() + "\nAntal ordrar: " +
+                    orders.stream().filter(f -> f.getCustomer().getId() == c.getId()).count() + "\n"));
+    }
 
     private void listCustomerOrdersSorted() {
         customers.stream().sorted((c1, c2) -> {
                     long totalOrders1 = orders.stream().filter(f -> f.getCustomer().getId() == c1.getId()).count();
                     long totalOrders2 = orders.stream().filter(f -> f.getCustomer().getId() == c2.getId()).count();
                     return Long.compare(totalOrders2, totalOrders1);
-                }).forEach(c -> {
-                    System.out.println("Name: " + c.getFirstname() + " " + c.getLastname() + "\n" +
-                            c.getAddress().toString() + "\nNumber of orders: " +
-                            orders.stream().filter(f -> f.getCustomer().getId() == c.getId()).count() + "\n");
-                });
+                }).forEach(c ->
+                    System.out.println("Namn: " + c.getFirstname() + " " + c.getLastname() + "\n" +
+                            c.getAddress().toString() + "\nAntal ordrar: " +
+                            orders.stream().filter(f -> f.getCustomer().getId() == c.getId()).count() + "\n"));
     }
 
     private void listCustomersTotalSpending(){
-        AtomicInteger totalSpending = new AtomicInteger();
-        customers.forEach(c -> {
-            totalSpending.set(0);
-            orders.stream().filter(f -> f.getCustomer().getId() == c.getId()).forEach(o -> {
-                        for (int i = 0; i < o.getShoes().size(); i++) {
-                            totalSpending.set(totalSpending.get() + o.getShoes().get(i).getPrice()*o.getShoes().get(i).getQuantity());
-                        }
-                    });
+        customers.forEach(c ->
             System.out.println("Namn: " + c.getFirstname() + " " + c.getLastname() + "\n" +
-                    c.getAddress().toString() + "\nTotala Summa: " + totalSpending + " kr.\n");
-        });
+                    c.getAddress().toString() + "\nTotala Summa: " + orders.stream().filter(f -> f.getCustomer().getId() == c.getId())
+                    .flatMap(o -> o.getShoes().stream()).mapToDouble(s -> s.getPrice() * s.getQuantity()).sum() + " kr.\n"));
     }
 
     private void listCustomersTotalSpendingSorted() {
@@ -180,12 +178,10 @@ public class Rapports {
                     double totalSpending2 = orders.stream().filter(f -> f.getCustomer().getId() == c2.getId())
                             .flatMap(o -> o.getShoes().stream()).mapToDouble(s -> s.getPrice() * s.getQuantity()).sum();
                     return Double.compare(totalSpending2, totalSpending1);
-                }).forEach(c -> {
-                    double totalSpending = orders.stream().filter(f -> f.getCustomer().getId() == c.getId())
-                            .flatMap(o -> o.getShoes().stream()).mapToDouble(s -> s.getPrice() * s.getQuantity()).sum();
-                    System.out.println("Name: " + c.getFirstname() + " " + c.getLastname() + "\n" +
-                            c.getAddress().toString() + "\nTotal spending: " + totalSpending + " kr.\n");
-                });
+                }).forEach(c ->
+                System.out.println("Namn: " + c.getFirstname() + " " + c.getLastname() + "\n" +
+                        c.getAddress().toString() + "\nTotala Summa: " + orders.stream().filter(f -> f.getCustomer().getId() == c.getId())
+                        .flatMap(o -> o.getShoes().stream()).mapToDouble(s -> s.getPrice() * s.getQuantity()).sum() + " kr.\n"));
     }
 
     private void listSpendingPerCity(){
