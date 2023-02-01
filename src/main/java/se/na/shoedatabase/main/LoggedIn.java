@@ -1,10 +1,10 @@
 package se.na.shoedatabase.main;
 
+import se.na.shoedatabase.interfaces.ShoeSearchInterface;
 import se.na.shoedatabase.dao.Repository;
 import se.na.shoedatabase.model.Orders;
 import se.na.shoedatabase.model.customer.Customer;
 import se.na.shoedatabase.model.shoe.Shoe;
-import se.na.shoedatabase.utility.ShoeSearchInterface;
 import se.na.shoedatabase.view.InputView;
 import se.na.shoedatabase.view.PrintHelp;
 

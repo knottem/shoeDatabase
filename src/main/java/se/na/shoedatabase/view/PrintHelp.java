@@ -1,9 +1,12 @@
 package se.na.shoedatabase.view;
 
 import se.na.shoedatabase.model.Orders;
+import se.na.shoedatabase.model.customer.Customer;
 import se.na.shoedatabase.model.shoe.Shoe;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 
 public class PrintHelp {
@@ -26,6 +29,16 @@ public class PrintHelp {
             System.out.printf("| %-2s | %-9s | %7s | %6s | %5s | %-20s | %4s |%n",
                     s.getId(), s.getBrand(), s.getSize(), s.getColor(), s.getQuantity(), s.getCategoriesNames(), s.getPrice()));
         System.out.printf("----------------------------------------------------------------------------%n");
+    }
+
+    public void printShoesSold(ArrayList<Shoe> shoes, int antal){
+        System.out.printf("-----------------------------------------------------------------------------------%n");
+        System.out.printf("| %-2s | %-9s | %7s | %6s | %-20s | %4s | %5s | %7s |%n", "Nr", "Märke", "Storlek", "Färg", "Kategori", "Pris",  "Mängd", "Totalt");
+        System.out.printf("-----------------------------------------------------------------------------------%n");
+        shoes.stream().limit(antal).forEach(s ->
+                System.out.printf("| %-2s | %-9s | %7s | %6s | %-20s | %4s | %5s | %7s |%n",
+                        s.getId(), s.getBrand(), s.getSize(), s.getColor(), s.getCategoriesNames(), s.getPrice(),  s.getQuantity(), s.getQuantity()*s.getPrice()));
+        System.out.printf("-----------------------------------------------------------------------------------%n");
     }
 
     public void printShoesFromList(ArrayList<Integer> numbers, ArrayList<Shoe> shoes){
@@ -68,6 +81,34 @@ public class PrintHelp {
         });
     }
 
+    public void printCustomers(List<Customer> customerList) {
+        System.out.printf("-------------------------------------------------------------------------------------------------%n");
+        System.out.printf("| %-2s | %-16s | %12s | %18s | %10s | %-10s | %10s |%n", "Id", "Namn", "Personnummer", "Gatuadress", "Gatunummer", "Postnr", "Postort");
+        System.out.printf("-------------------------------------------------------------------------------------------------%n");
+        customerList.forEach(c ->
+                System.out.printf("| %-2s | %-16s | %12s | %18s | %-10s | %10s | %10s |%n",
+                        c.getId(),
+                        c.getFirstname() + " " + c.getLastname(),
+                        c.getSsn(),
+                        c.getAddress().getAddress(),
+                        c.getAddress().getAddressNumber(),
+                        c.getAddress().getZipcode(),
+                        c.getAddress().getCity())
+        );
+        System.out.printf("-------------------------------------------------------------------------------------------------%n\n");
+    }
+
+    public void printCities(List<Map.Entry<String, Integer>> spendingPerCity) {
+        System.out.printf("-----------------------------------%n");
+        System.out.printf("| %-31s |%n","Mest sålda i städerna");
+        System.out.printf("-----------------------------------%n");
+        System.out.printf("| %-16s | %12s |%n", "Stad", "Summa");
+        System.out.printf("-----------------------------------%n");
+        spendingPerCity.forEach(s ->
+                System.out.printf("| %-16s | %12s |%n",
+                        s.getKey(), s.getValue() + " kr"));
+        System.out.printf("-----------------------------------%n\n");
+    }
 }
 
 

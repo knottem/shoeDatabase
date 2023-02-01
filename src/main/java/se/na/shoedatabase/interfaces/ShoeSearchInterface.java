@@ -1,4 +1,4 @@
-package se.na.shoedatabase.utility;
+package se.na.shoedatabase.interfaces;
 
 import se.na.shoedatabase.model.shoe.Shoe;
 
