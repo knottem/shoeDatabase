@@ -2,10 +2,10 @@ package se.na.shoedatabase.model.customer;
 
 public class Address {
 
-    private String address;
-    private int addressNumber;
-    private String city;
-    private int zipcode;
+    private final String address;
+    private final int addressNumber;
+    private final String city;
+    private final int zipcode;
 
     public Address(String address, int addressNumber, String city, int zipcode) {
         this.address = address;
@@ -14,40 +14,20 @@ public class Address {
         this.zipcode = zipcode;
     }
 
-    public Address(String city){
-        this.city = city;
-    }
-
     public String getAddress() {
         return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 
     public int getAddressNumber() {
         return addressNumber;
     }
 
-    public void setAddressNumber(int addressNumber) {
-        this.addressNumber = addressNumber;
-    }
-
     public String getCity() {
         return city;
     }
 
-    public void setCity(String city) {
-        this.city = city;
-    }
-
     public int getZipcode() {
         return zipcode;
-    }
-
-    public void setZipcode(int zipcode) {
-        this.zipcode = zipcode;
     }
 
     @Override

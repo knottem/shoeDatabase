@@ -82,11 +82,11 @@ public class PrintHelp {
     }
 
     public void printCustomers(List<Customer> customerList) {
-        System.out.printf("-------------------------------------------------------------------------------------------------%n");
-        System.out.printf("| %-2s | %-16s | %12s | %18s | %10s | %-10s | %10s |%n", "Id", "Namn", "Personnummer", "Gatuadress", "Gatunummer", "Postnr", "Postort");
-        System.out.printf("-------------------------------------------------------------------------------------------------%n");
+        System.out.printf("----------------------------------------------------------------------------------------------------%n");
+        System.out.printf("| %-2s | %-16s | %-12s | %-18s | %-10s | %-10s | %-10s |%n", "Id", "Namn", "Personnummer", "Gatuadress", "Gatunummer", "Postnr", "Postort");
+        System.out.printf("----------------------------------------------------------------------------------------------------%n");
         customerList.forEach(c ->
-                System.out.printf("| %-2s | %-16s | %12s | %18s | %-10s | %10s | %10s |%n",
+                System.out.printf("| %-2s | %-16s | %-12s | %-18s | %-10s | %-10s | %-10s |%n",
                         c.getId(),
                         c.getFirstname() + " " + c.getLastname(),
                         c.getSsn(),
@@ -95,18 +95,16 @@ public class PrintHelp {
                         c.getAddress().getZipcode(),
                         c.getAddress().getCity())
         );
-        System.out.printf("-------------------------------------------------------------------------------------------------%n\n");
+        System.out.printf("----------------------------------------------------------------------------------------------------%n\n");
     }
 
-    public void printCities(List<Map.Entry<String, Integer>> spendingPerCity) {
+    public void printCities(Map<String, Integer> spendingPerCity) {
         System.out.printf("-----------------------------------%n");
         System.out.printf("| %-31s |%n","Mest sålda i städerna");
         System.out.printf("-----------------------------------%n");
         System.out.printf("| %-16s | %12s |%n", "Stad", "Summa");
         System.out.printf("-----------------------------------%n");
-        spendingPerCity.forEach(s ->
-                System.out.printf("| %-16s | %12s |%n",
-                        s.getKey(), s.getValue() + " kr"));
+        spendingPerCity.forEach((key, value) -> System.out.printf("| %-16s | %12s |%n", key, value + " kr"));
         System.out.printf("-----------------------------------%n\n");
     }
 }

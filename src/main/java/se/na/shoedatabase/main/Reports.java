@@ -12,6 +12,7 @@ import se.na.shoedatabase.view.InputView;
 import se.na.shoedatabase.view.PrintHelp;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Reports {
 
@@ -138,7 +139,7 @@ public class Reports {
             int spending = o.getShoes().stream().mapToInt(shoe -> shoe.getPrice() * shoe.getQuantity()).sum();
             spendingPerCity.merge(city, spending, Integer::sum);
         });
-        List<Map.Entry<String, Integer>> sortedSpendingPerCity = spendingPerCity.entrySet().stream().sorted((s1, s2) -> s2.getValue() - s1.getValue()).toList();
+        Map<String, Integer> sortedSpendingPerCity = spendingPerCity.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
         printHelp.printCities(sortedSpendingPerCity);
     }
 

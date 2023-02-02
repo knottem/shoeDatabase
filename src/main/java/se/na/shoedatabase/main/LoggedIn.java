@@ -117,7 +117,7 @@ public class LoggedIn {
 
     private void searchShoesByInterface(String answer, ShoeSearchInterface ssi){
         ArrayList<Shoe> temp = shoes.stream().filter(s -> ssi.search(s, answer)).collect(Collectors.toCollection(ArrayList::new));
-        if(!(temp.size() == 0)){
+        if(temp.size() > 0){
             printHelp.printShoes(temp);
         } else {
             System.out.println("Hittade inga skor");
