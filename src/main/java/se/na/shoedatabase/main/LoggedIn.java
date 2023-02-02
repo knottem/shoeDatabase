@@ -1,5 +1,6 @@
 package se.na.shoedatabase.main;
 
+import se.na.shoedatabase.dao.Encrypt;
 import se.na.shoedatabase.interfaces.ShoeSearchInterface;
 import se.na.shoedatabase.dao.Repository;
 import se.na.shoedatabase.model.Orders;
@@ -23,7 +24,35 @@ public class LoggedIn {
     ShoeSearchInterface categorySearch = (a, b) -> a.getCategoriesNames().contains(b);
     ShoeSearchInterface sizeSearch = (a, b) -> Integer.toString(a.getSize()).equalsIgnoreCase(b);
 
-    public void newOrder(Customer customer){
+    public void login(){
+        Customer customer = rep.getCustomer(inputView.inputLong("Vad är ditt personnummer?", true), Encrypt.encryptSHA3(inputView.inputString("Vad är ditt lösenord?",true)));
+        if(customer != null){
+            ArrayList<Shoe> shoes = rep.getAllShoes();
+            System.out.println("Välkommen in " + customer.getFirstname() + " " + customer.getLastname());
+            boolean repeat = true;
+            while (repeat) {
+                System.out.println("""
+                        Vad vill du göra?
+                        1. Sök på skor
+                        2. Lägg till ny beställning
+                        3. Se en specifik order.
+                        4. Visa dina ordrar.
+                        5. Logga ut""");
+                switch (inputView.inputInt("", false)) {
+                    case 1 -> searchShoes();
+                    case 2 -> newOrder(customer);
+                    case 3 -> searchOrders(customer);
+                    case 4 -> printHelp.printAllOrders(rep.getOrdersForCustomer(customer, shoes));
+                    case 5 -> repeat = false;
+                    default -> System.out.println("Felaktigt nummer");
+                }
+            }
+        } else {
+            System.out.println("Användare finns ej / fel lösenord");
+        }
+    }
+
+    private void newOrder(Customer customer){
         int orderId = 0;
         boolean repeatorder = false;
         do {
@@ -58,7 +87,7 @@ public class LoggedIn {
         } while(repeatorder);
     }
 
-    public void searchOrders(Customer customer){
+    private void searchOrders(Customer customer){
         ArrayList<Orders> orders = rep.getOrders(
                 inputView.inputInt("Vilken order vill du se?, gå till visa dina ordrar för att se dina ordernummer", true),
                 customer);
@@ -69,7 +98,7 @@ public class LoggedIn {
         }
     }
 
-    public void searchShoes() {
+    private void searchShoes() {
         shoes = rep.getAllShoes();
         System.out.println("""
                 Vad vill du söka på?
@@ -86,7 +115,7 @@ public class LoggedIn {
         }
     }
 
-    public void searchShoesByInterface(String answer, ShoeSearchInterface ssi){
+    private void searchShoesByInterface(String answer, ShoeSearchInterface ssi){
         ArrayList<Shoe> temp = shoes.stream().filter(s -> ssi.search(s, answer)).collect(Collectors.toCollection(ArrayList::new));
         if(!(temp.size() == 0)){
             printHelp.printShoes(temp);

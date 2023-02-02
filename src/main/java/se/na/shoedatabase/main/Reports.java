@@ -3,6 +3,7 @@ package se.na.shoedatabase.main;
 import se.na.shoedatabase.interfaces.OrderSearchInterface;
 import se.na.shoedatabase.dao.Encrypt;
 import se.na.shoedatabase.dao.Repository;
+import se.na.shoedatabase.interfaces.OrdersCustomerInterface;
 import se.na.shoedatabase.model.Admin;
 import se.na.shoedatabase.model.Orders;
 import se.na.shoedatabase.model.customer.Customer;
@@ -12,7 +13,7 @@ import se.na.shoedatabase.view.PrintHelp;
 
 import java.util.*;
 
-public class Rapports {
+public class Reports {
 
     Repository rep = Repository.getRepository();
     PrintHelp printHelp = PrintHelp.getPrintHelp();
@@ -27,7 +28,10 @@ public class Rapports {
     OrderSearchInterface categorySearch = (a, b) ->  a.getShoes().stream().anyMatch(s -> s.getCategoriesNames().contains(b));
     OrderSearchInterface sizeSearch = (a, b) ->  a.getShoes().stream().anyMatch(s -> Integer.toString(s.getSize()).equalsIgnoreCase(b));
 
-    public void checkRapports(){
+    OrdersCustomerInterface totalSpendingSearch = (o, c) -> o.stream().filter(f -> f.getCustomer().getId() == c.getId()).flatMap(f -> f.getShoes().stream()).mapToDouble(s -> s.getPrice() * s.getQuantity()).sum();
+    OrdersCustomerInterface totalOrders = (o, c) -> o.stream().filter(f -> f.getCustomer().getId() == c.getId()).count();
+
+    public void login(){
         Admin admin = rep.getAdmin(
                 inputView.inputString("Användarnamn?", true),
                 Encrypt.encryptSHA3(inputView.inputString("Lösenord?", true)));
@@ -104,39 +108,27 @@ public class Rapports {
     private void listCustomerOrders(){
         customers.forEach(c ->
             System.out.println("Namn: " + c.getFirstname() + " " + c.getLastname() + "\n" +
-                    c.getAddress().toString() + "\nAntal ordrar: " +
-                    orders.stream().filter(f -> f.getCustomer().getId() == c.getId()).count() + "\n"));
+                    c.getAddress().toString() + "\nAntal ordrar: " + (int) totalOrders.total(orders, c) + "\n"));
     }
 
     private void listCustomerOrdersSorted() {
-        customers.stream().sorted((c1, c2) -> {
-                    long totalOrders1 = orders.stream().filter(f -> f.getCustomer().getId() == c1.getId()).count();
-                    long totalOrders2 = orders.stream().filter(f -> f.getCustomer().getId() == c2.getId()).count();
-                    return Long.compare(totalOrders2, totalOrders1);
-                }).forEach(c ->
+        customers.stream().sorted((c1, c2) -> Double.compare(totalOrders.total(orders, c2), totalOrders.total(orders, c1))
+                ).forEach(c ->
                     System.out.println("Namn: " + c.getFirstname() + " " + c.getLastname() + "\n" +
-                            c.getAddress().toString() + "\nAntal ordrar: " +
-                            orders.stream().filter(f -> f.getCustomer().getId() == c.getId()).count() + "\n"));
+                            c.getAddress().toString() + "\nAntal ordrar: " + (int) totalOrders.total(orders, c) + "\n"));
     }
 
     private void listCustomersTotalSpending(){
         customers.forEach(c ->
             System.out.println("Namn: " + c.getFirstname() + " " + c.getLastname() + "\n" +
-                    c.getAddress().toString() + "\nTotala Summa: " + orders.stream().filter(f -> f.getCustomer().getId() == c.getId())
-                    .flatMap(o -> o.getShoes().stream()).mapToDouble(s -> s.getPrice() * s.getQuantity()).sum() + " kr.\n"));
+                    c.getAddress().toString() + "\nTotala Summa: " + totalSpendingSearch.total(orders, c) + " kr.\n"));
     }
 
     private void listCustomersTotalSpendingSorted() {
-        customers.stream().sorted((c1, c2) -> {
-                    double totalSpending1 = orders.stream().filter(f -> f.getCustomer().getId() == c1.getId())
-                            .flatMap(o -> o.getShoes().stream()).mapToDouble(s -> s.getPrice() * s.getQuantity()).sum();
-                    double totalSpending2 = orders.stream().filter(f -> f.getCustomer().getId() == c2.getId())
-                            .flatMap(o -> o.getShoes().stream()).mapToDouble(s -> s.getPrice() * s.getQuantity()).sum();
-                    return Double.compare(totalSpending2, totalSpending1);
-                }).forEach(c ->
+        customers.stream().sorted((c1, c2) -> Double.compare(totalSpendingSearch.total(orders, c2), totalSpendingSearch.total(orders, c1))
+                ).forEach(c ->
                 System.out.println("Namn: " + c.getFirstname() + " " + c.getLastname() + "\n" +
-                        c.getAddress().toString() + "\nTotala Summa: " + orders.stream().filter(f -> f.getCustomer().getId() == c.getId())
-                        .flatMap(o -> o.getShoes().stream()).mapToDouble(s -> s.getPrice() * s.getQuantity()).sum() + " kr.\n"));
+                        c.getAddress().toString() + "\nTotala Summa: " + totalSpendingSearch.total(orders, c) + " kr.\n"));
     }
 
     private void listSpendingPerCity(){
