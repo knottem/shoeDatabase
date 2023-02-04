@@ -3,7 +3,7 @@ package se.na.shoedatabase.model.shoe;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class Shoe {
+public class Shoe{
 
     private final int id;
     private final int price;
@@ -22,6 +22,17 @@ public class Shoe {
         this.size = size;
         this.quantity = quantity;
     }
+
+    public Shoe(Shoe s) {
+        this.id = s.getId();
+        this.price = s.getPrice();
+        this.brand.setBrand(s.getBrand());
+        this.color.setColor(s.getColor());
+        this.size = s.getSize();
+        this.quantity = s.getQuantity();
+        this.categories = s.getCategories();
+    }
+
 
     public int getId() {
         return id;

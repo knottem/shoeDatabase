@@ -13,8 +13,8 @@ import java.util.Comparator;
 
 public class Repository {
 
-    ArrayList<Shoe> shoes = new ArrayList<>();
-    Connect connect = new Connect();
+    final ArrayList<Shoe> shoes = new ArrayList<>();
+    final Connect connect = new Connect();
 
     private static Repository repository;
 
@@ -43,8 +43,8 @@ public class Repository {
                                         rs.getString("lastname"),
                                         rs.getLong("ssn"),
                                         rs.getString("pass"),
-                                        rs.getString("streetname"),
-                                        rs.getInt("streetnumber"),
+                                        rs.getString("streetName"),
+                                        rs.getInt("streetNumber"),
                                         rs.getString("city"),
                                         rs.getInt("zipcode"));
             }
@@ -56,23 +56,23 @@ public class Repository {
         return customer;
     }
 
-    public int addOrder(int orderid, int customerid, int shoeid){
+    public int addOrder(int orderId, int customerId, int shoeId){
         ResultSet rs;
         String errormessage = "";
         String sql = "call AddToCart(?,?,?,?)";
-        int neworderid = 0;
+        int newOrderId = 0;
         try(Connection con = connect.getConnectionDB();
             CallableStatement stmt = con.prepareCall(sql)){
-            if(orderid == 0) {
+            if(orderId == 0) {
                 stmt.setNull(1, Types.INTEGER);
             } else {
-                stmt.setInt(1, orderid);
+                stmt.setInt(1, orderId);
             }
-            stmt.setInt(2, customerid);
-            stmt.setInt(3, shoeid);
+            stmt.setInt(2, customerId);
+            stmt.setInt(3, shoeId);
             stmt.registerOutParameter(4,Types.INTEGER);
             rs = stmt.executeQuery();
-            neworderid = stmt.getInt(4);
+            newOrderId = stmt.getInt(4);
 
             while (rs != null && rs.next()) {
                 errormessage = rs.getString("debug");
@@ -88,7 +88,7 @@ public class Repository {
         } catch (Exception e){
             e.printStackTrace();
         }
-        return neworderid;
+        return newOrderId;
     }
 
     public ArrayList<Shoe> getAllShoes(){
@@ -124,7 +124,7 @@ public class Repository {
             PreparedStatement stmt = con.prepareStatement(sql2)) {
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
-                int id = rs.getInt("shoeid");
+                int id = rs.getInt("shoeId");
                 String name = rs.getString("name");
                 shoes.stream().filter(f -> f.getId() == id).forEach(s -> s.getCategories().add(new Category(name)));
             }
@@ -135,56 +135,42 @@ public class Repository {
 
         return shoes;
     }
+
     public ArrayList<Orders> getOrdersForCustomer(Customer customer, ArrayList<Shoe> shoeArrayList){
-        ArrayList<Integer> temp = new ArrayList<>();
         ArrayList<Orders> ordersArrayList = new ArrayList<>();
         String sql = """
-                select ordersmap.orderid, ordersmap.shoeId, ordersmap.quantity, ordersmap.created from orders
-                inner join ordersmap on orders.id = ordersmap.orderid
-                where customerId = ?
-                """;
+            select ordersmap.orderid, ordersmap.shoeId, ordersmap.quantity, ordersmap.created from orders
+            inner join ordersmap on orders.id = ordersmap.orderid
+            where customerId = ?
+            """;
         try(Connection con = connect.getConnectionDB();
             PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setInt(1, customer.getId());
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
-                int test = rs.getInt("orderid");
+                int orderId = rs.getInt("orderId");
                 Timestamp timestamp = rs.getTimestamp("created");
-                temp.add(test);
-                if(ordersArrayList.stream().noneMatch(s -> s.getId() == test)) {
-                    ordersArrayList.add(new Orders(test, timestamp, customer));
+                int shoeId = rs.getInt("shoeId");
+                int quantity = rs.getInt("quantity");
+                if(ordersArrayList.stream().noneMatch(s -> s.getId() == orderId)) {
+                    ordersArrayList.add(new Orders(orderId, timestamp, customer));
                 }
-                temp.add(rs.getInt("shoeid"));
-                temp.add(rs.getInt("quantity"));
+                shoeArrayList.stream().filter(s -> s.getId() == shoeId).findFirst().ifPresent(shoe ->
+                        ordersArrayList.stream().filter(o -> o.getId() == orderId).forEach(o -> {
+                            o.getShoes().add(shoe);
+                            shoe.setQuantity(quantity);
+                        }));
             }
-            ordersArrayList.forEach(s -> {
-                for (int i = 0; i < temp.size(); i+=3) {
-                    if(s.getId() == temp.get(i)){
-                        for (Shoe shoe : shoeArrayList) {
-                            if (shoe.getId() == temp.get(i + 1)) {
-                                s.getShoes().add(shoe);
-                                for (int j = 0; j < s.getShoes().size(); j++) {
-                                    if(s.getShoes().get(j).getId() == temp.get(i+1)){
-                                        s.getShoes().get(j).setQuantity(temp.get(i+2));
-                                    }
-                                }
-                            }
-                        }
-                        s.setCustomer(customer);
-                    }
-                }
-            });
         } catch (SQLException | IOException e){
             e.printStackTrace();
         }
         return ordersArrayList;
     }
-    public ArrayList<Orders> getOrders(int orderid, Customer customer) {
+
+    public ArrayList<Orders> getOrders(int orderId, Customer customer) {
         ArrayList<Orders> orders = new ArrayList<>();
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        orders.add(new Orders(orderid, timestamp, customer));
         String sql = """
-                select shoe.id, shoebrand.name, shoecolor.colorswe, shoesize.euSize, ordersmap.quantity, shoe.price from orders
+                select shoe.id, shoebrand.name, shoecolor.colorswe, shoesize.euSize, ordersmap.quantity, ordersmap.created, shoe.price from orders
                 inner join ordersmap on orders.id = ordersmap.orderid
                 inner join shoe on shoe.id = ordersmap.shoeid
                 inner join shoebrand on brandid = shoebrand.id
@@ -198,12 +184,15 @@ public class Repository {
                 """;
         try (Connection con = connect.getConnectionDB();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            stmt.setInt(1, orderid);
+            stmt.setInt(1, orderId);
             stmt.setInt(2, customer.getId());
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
+                if(orders.stream().noneMatch(s -> s.getId() == orderId)) {
+                    orders.add(new Orders(orderId, rs.getTimestamp("created") , customer));
+                }
                 for (Orders order : orders) {
-                    if (order.getId() == orderid) {
+                    if (order.getId() == orderId) {
                         order.getShoes().add(new Shoe(
                                 rs.getInt("id"),
                                 rs.getInt("price"),
@@ -222,9 +211,9 @@ public class Repository {
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
                 for (Orders order : orders) {
-                    if (order.getId() == orderid){
+                    if (order.getId() == orderId){
                         for (int i = 0; i < order.getShoes().size(); i++) {
-                            if (rs.getInt("shoeid") == order.getShoes().get(i).getId()) {
+                            if (rs.getInt("shoeId") == order.getShoes().get(i).getId()) {
                                 order.getShoes().get(i).getCategories().add(new Category(rs.getString("name")));
                             }
                         }
@@ -251,8 +240,8 @@ public class Repository {
                         rs.getString("lastname"),
                         rs.getLong("ssn"),
                         rs.getString("pass"),
-                        rs.getString("streetname"),
-                        rs.getInt("streetnumber"),
+                        rs.getString("streetName"),
+                        rs.getInt("streetNumber"),
                         rs.getString("city"),
                         rs.getInt("zipcode")));
             }
@@ -264,9 +253,10 @@ public class Repository {
         return customers;
     }
 
-    public ArrayList<Orders> getAllOrders(ArrayList<Shoe> shoeArrayList, ArrayList<Customer> customers) {
+    public ArrayList<Orders> getAllOrders() {
+        ArrayList<Shoe> shoes = getAllShoes();
+        ArrayList<Customer> customers = getAllCustomers();
         ArrayList<Orders> ordersArrayList = new ArrayList<>();
-        ArrayList<Integer> temp = new ArrayList<>();
         String sql = """
                 select ordersmap.orderid, ordersmap.shoeId, ordersmap.quantity, orders.customerId, ordersmap.created from orders
                 inner join ordersmap on orders.id = ordersmap.orderid
@@ -275,44 +265,27 @@ public class Repository {
              PreparedStatement stmt = con.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
-                int test = rs.getInt("orderid");
-                temp.add(test);
+                int orderId = rs.getInt("orderId");
+                int shoeId = rs.getInt("shoeId");
+                int quantity = rs.getInt("quantity");
+                int customerId = rs.getInt("customerId");
                 Timestamp timestamp = rs.getTimestamp("created");
-                if(ordersArrayList.stream().noneMatch(s -> s.getId() == test)) {
-                    ordersArrayList.add(new Orders(test, timestamp));
+                if(ordersArrayList.stream().noneMatch(s -> s.getId() == orderId)){
+                    ordersArrayList.add(new Orders(orderId, timestamp, customers.stream().filter(s -> s.getId() == customerId).findFirst().orElse(null)));
                 }
-                temp.add(rs.getInt("shoeid"));
-                temp.add(rs.getInt("quantity"));
-                temp.add(rs.getInt("customerid"));
-
+                shoes.stream().filter(s -> s.getId() == shoeId).findFirst().ifPresent(shoe ->
+                        ordersArrayList.stream().filter(o -> o.getId() == orderId).forEach(o -> {
+                            o.getShoes().add(shoe);
+                            shoe.setQuantity(quantity);
+                        }));
             }
         } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
-        ordersArrayList.forEach(s -> {
-            for (int i = 0; i < temp.size(); i+=4) {
-                if(s.getId() == temp.get(i)){
-                    for (Shoe shoe : shoeArrayList) {
-                        if (shoe.getId() == temp.get(i + 1)) {
-                            s.getShoes().add(shoe);
-                            for (int j = 0; j < s.getShoes().size(); j++) {
-                                if(s.getShoes().get(j).getId() == temp.get(i+1)){
-                                    s.getShoes().get(j).setQuantity(temp.get(i+2));
-                                }
-                            }
-                        }
-                    }
-                    for (Customer customer : customers) {
-                        if (customer.getId() == temp.get(i + 3)) {
-                            s.setCustomer(customer);
-                        }
-                    }
-                }
-            }
-        });
         ordersArrayList.sort(Comparator.comparingInt(Orders::getId));
         return ordersArrayList;
     }
+
     public Admin getAdmin(String name, String pass){
         Admin admin = null;
         String sql = "select id, name, password from admin where name=? and password=?";
@@ -332,18 +305,18 @@ public class Repository {
         return admin;
     }
     public Customer insertNewCustomer(String firstname, String lastname, Long ssn, String pass,
-                                      String address, int gatuAddress, int postnummer, String postort) {
+                                      String address, int gatuadress, int postnummer, String postort) {
         int id = 0;
         try(Connection connection = connect.getConnectionDB();
             PreparedStatement ps = connection.prepareStatement("select * from customer where ssn=?")) {
             ps.setLong(1, ssn);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                System.out.println("Customer med personummer: " + ssn + " finns redan.");
+                System.out.println("Customer med personnummer: " + ssn + " finns redan.");
             } else {
                 try (PreparedStatement ps4 = connection.prepareStatement("select id from address where streetname=? and streetnumber=? and zipcode=? and city=?")) {
                     ps4.setString(1, address);
-                    ps4.setInt(2, gatuAddress);
+                    ps4.setInt(2, gatuadress);
                     ps4.setInt(3, postnummer);
                     ps4.setString(4, postort);
                     ResultSet rs4 = ps4.executeQuery();
@@ -354,7 +327,7 @@ public class Repository {
                         PreparedStatement ps2 = connection.prepareStatement("insert into address (streetname, streetnumber, zipcode, city) VALUES (?,?,?,?)",
                                 Statement.RETURN_GENERATED_KEYS);
                         ps2.setString(1, address);
-                        ps2.setInt(2, gatuAddress);
+                        ps2.setInt(2, gatuadress);
                         ps2.setInt(3, postnummer);
                         ps2.setString(4, postort);
                         ps2.execute();

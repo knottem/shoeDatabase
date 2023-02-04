@@ -10,19 +10,21 @@ import se.na.shoedatabase.view.InputView;
 import se.na.shoedatabase.view.PrintHelp;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class LoggedIn {
 
     ArrayList<Shoe> shoes;
-    Repository rep = Repository.getRepository();
-    PrintHelp printHelp = PrintHelp.getPrintHelp();
-    InputView inputView = InputView.getInputView();
+    final Repository rep = Repository.getRepository();
+    final PrintHelp printHelp = PrintHelp.getPrintHelp();
+    final InputView inputView = InputView.getInputView();
 
-    ShoeSearchInterface colorSearch = (a, b) -> a.getColor().equalsIgnoreCase(b);
-    ShoeSearchInterface brandSearch = (a, b) -> a.getBrand().equalsIgnoreCase(b);
-    ShoeSearchInterface categorySearch = (a, b) -> a.getCategoriesNames().contains(b);
-    ShoeSearchInterface sizeSearch = (a, b) -> Integer.toString(a.getSize()).equalsIgnoreCase(b);
+    final ShoeSearchInterface colorSearch = (a, b) -> a.getColor().equalsIgnoreCase(b);
+    final ShoeSearchInterface brandSearch = (a, b) -> a.getBrand().equalsIgnoreCase(b);
+    final ShoeSearchInterface categorySearch = (a, b) -> a.getCategoriesNames().contains(b);
+    final ShoeSearchInterface sizeSearch = (a, b) -> Integer.toString(a.getSize()).equalsIgnoreCase(b);
 
     public void login(){
         Customer customer = rep.getCustomer(inputView.inputLong("Vad är ditt personnummer?", true), Encrypt.encryptSHA3(inputView.inputString("Vad är ditt lösenord?",true)));
@@ -35,15 +37,17 @@ public class LoggedIn {
                         Vad vill du göra?
                         1. Sök på skor
                         2. Lägg till ny beställning
-                        3. Se en specifik order.
-                        4. Visa dina ordrar.
-                        5. Logga ut""");
+                        3. Lägg till skor till en befintligt beställning.
+                        4. Se en specifik order.
+                        5. Visa dina ordrar.
+                        6. Logga ut""");
                 switch (inputView.inputInt("", false)) {
                     case 1 -> searchShoes();
                     case 2 -> newOrder(customer);
-                    case 3 -> searchOrders(customer);
-                    case 4 -> printHelp.printAllOrders(rep.getOrdersForCustomer(customer, shoes));
-                    case 5 -> repeat = false;
+                    case 3 -> changeOrder(customer);
+                    case 4 -> searchOrders(customer);
+                    case 5 -> printHelp.printAllOrders(rep.getOrdersForCustomer(customer, shoes));
+                    case 6 -> repeat = false;
                     default -> System.out.println("Felaktigt nummer");
                 }
             }
@@ -54,7 +58,7 @@ public class LoggedIn {
 
     private void newOrder(Customer customer){
         int orderId = 0;
-        boolean repeatorder = false;
+        boolean repeatOrder = false;
         do {
             shoes = rep.getAllShoes();
             printHelp.printShoes(shoes);
@@ -74,17 +78,44 @@ public class LoggedIn {
                         System.out.println("Ingen sko tillagd");
                     }
                     if (inputView.inputInt("Vill du lägga till fler skor i denna beställning? 1 för ja, 2 för nej", true) == 1) {
-                        repeatorder = true;
+                        repeatOrder = true;
                     } else {
                         ArrayList<Orders> orders;
                         orders = rep.getOrders(orderId, customer);
                         System.out.println("Din beställning är gjord med: ");
                         printHelp.printAllOrders(orders);
-                        repeatorder = false;
+                        repeatOrder = false;
                     }
                 }
             }
-        } while(repeatorder);
+        } while(repeatOrder);
+    }
+
+    private void changeOrder(Customer customer){
+        int orderId;
+        Date time = new Date(System.currentTimeMillis() - 3600 * 1000);
+        shoes = rep.getAllShoes();
+        List<Orders> orders = rep.getOrdersForCustomer(customer, shoes).stream().filter(o -> o.getTimestamp().after(time)).toList();
+        if(orders.size() > 0){
+            System.out.println("Ordrar som är skapade mindre än 1 timme sedan.");
+            printHelp.printAllOrders(orders);
+            if(orders.size() == 1){
+                orderId = orders.get(0).getId();
+                printHelp.printShoes(shoes);
+                int answer = inputView.inputInt("Skriv nummer på viken sko du vill lägga till till denna order:", true);
+                Shoe shoe = shoes.stream().filter(s -> s.getId() == answer).findFirst().orElse(null);
+                if(shoe != null) {
+                    rep.addOrder(orderId, customer.getId(), shoe.getId());
+                    System.out.println("Skon tillagt till order " + orderId + "\n");
+                } else {
+                    System.out.println("Felaktigt nummer på sko");
+                }
+            } else {
+                System.out.println("Vilken order vill du ändra på?");
+            }
+        } else {
+            System.out.println("Du har inga ordrar du kan ändra på");
+        }
     }
 
     private void searchOrders(Customer customer){

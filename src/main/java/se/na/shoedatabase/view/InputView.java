@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class InputView {
 
     private static InputView inputView;
-    Scanner scan = new Scanner(System.in);
+    final Scanner scan = new Scanner(System.in);
 
     public static InputView getInputView() {
         if (inputView == null) {

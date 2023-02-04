@@ -12,34 +12,35 @@ import se.na.shoedatabase.view.InputView;
 import se.na.shoedatabase.view.PrintHelp;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Reports {
 
-    Repository rep = Repository.getRepository();
-    PrintHelp printHelp = PrintHelp.getPrintHelp();
-    InputView inputView = InputView.getInputView();
+    final Repository rep = Repository.getRepository();
+    final PrintHelp printHelp = PrintHelp.getPrintHelp();
+    final InputView inputView = InputView.getInputView();
 
     ArrayList<Shoe> shoes;
     ArrayList<Customer> customers;
     ArrayList<Orders> orders;
 
-    OrderSearchInterface brandSearch = (a, b) ->  a.getShoes().stream().anyMatch(s -> s.getBrand().equalsIgnoreCase(b));
-    OrderSearchInterface colorSearch = (a, b) ->  a.getShoes().stream().anyMatch(s -> s.getColor().equalsIgnoreCase(b));
-    OrderSearchInterface categorySearch = (a, b) ->  a.getShoes().stream().anyMatch(s -> s.getCategoriesNames().contains(b));
-    OrderSearchInterface sizeSearch = (a, b) ->  a.getShoes().stream().anyMatch(s -> Integer.toString(s.getSize()).equalsIgnoreCase(b));
+    final OrderSearchInterface brandSearch = (a, b) ->  a.getShoes().stream().anyMatch(s -> s.getBrand().equalsIgnoreCase(b));
+    final OrderSearchInterface colorSearch = (a, b) ->  a.getShoes().stream().anyMatch(s -> s.getColor().equalsIgnoreCase(b));
+    final OrderSearchInterface categorySearch = (a, b) ->  a.getShoes().stream().anyMatch(s -> s.getCategoriesNames().contains(b));
+    final OrderSearchInterface sizeSearch = (a, b) ->  a.getShoes().stream().anyMatch(s -> Integer.toString(s.getSize()).equalsIgnoreCase(b));
 
-    OrdersCustomerInterface totalSpendingSearch = (o, c) -> o.stream().filter(f -> f.getCustomer().getId() == c.getId()).flatMap(f -> f.getShoes().stream()).mapToDouble(s -> s.getPrice() * s.getQuantity()).sum();
-    OrdersCustomerInterface totalOrders = (o, c) -> o.stream().filter(f -> f.getCustomer().getId() == c.getId()).count();
+    final OrdersCustomerInterface totalSpendingSearch = (o, c) -> o.stream().filter(f -> f.getCustomer().getId() == c.getId()).flatMap(f -> f.getShoes().stream()).mapToDouble(s -> s.getPrice() * s.getQuantity()).sum();
+    final OrdersCustomerInterface totalOrders = (o, c) -> o.stream().filter(f -> f.getCustomer().getId() == c.getId()).count();
 
     public void login(){
         Admin admin = rep.getAdmin(
                 inputView.inputString("Användarnamn?", true),
                 Encrypt.encryptSHA3(inputView.inputString("Lösenord?", true)));
         if(admin != null) {
-            shoes = rep.getAllShoes();
             customers = rep.getAllCustomers();
-            orders = rep.getAllOrders(shoes, customers);
+            shoes = rep.getAllShoes();
+            orders = rep.getAllOrders();
             boolean repeat = true;
             while (repeat) {
                 switch (inputView.inputInt("""
@@ -53,16 +54,14 @@ public class Reports {
                         7. Logga ut""", true)) {
                     case 1 -> listAllBought();
                     case 2 -> {
-                        int svar = inputView.inputInt("Sorterad lista eller inte, svara 1 för sorterad", true);
-                        if(svar == 1){
+                        if(inputView.inputInt("Sorterad lista eller inte, svara 1 för sorterad", true) == 1){
                             listCustomerOrdersSorted();
                         } else {
                             listCustomerOrders();
                         }
                     }
                     case 3 -> {
-                        int svar = inputView.inputInt("Sorterad lista eller inte, svara 1 för sorterad", true);
-                        if (svar == 1) {
+                        if (inputView.inputInt("Sorterad lista eller inte, svara 1 för sorterad", true) == 1) {
                             listCustomersTotalSpendingSorted();
                         } else {
                             listCustomersTotalSpending();
@@ -113,9 +112,8 @@ public class Reports {
     }
 
     private void listCustomerOrdersSorted() {
-        customers.stream().sorted((c1, c2) -> Double.compare(totalOrders.total(orders, c2), totalOrders.total(orders, c1))
-                ).forEach(c ->
-                    System.out.println("Namn: " + c.getFirstname() + " " + c.getLastname() + "\n" +
+        customers.stream().sorted((c1, c2) -> Double.compare(totalOrders.total(orders, c2), totalOrders.total(orders, c1)))
+                .forEach(c -> System.out.println("Namn: " + c.getFirstname() + " " + c.getLastname() + "\n" +
                             c.getAddress().toString() + "\nAntal ordrar: " + (int) totalOrders.total(orders, c) + "\n"));
     }
 
@@ -126,9 +124,8 @@ public class Reports {
     }
 
     private void listCustomersTotalSpendingSorted() {
-        customers.stream().sorted((c1, c2) -> Double.compare(totalSpendingSearch.total(orders, c2), totalSpendingSearch.total(orders, c1))
-                ).forEach(c ->
-                System.out.println("Namn: " + c.getFirstname() + " " + c.getLastname() + "\n" +
+        customers.stream().sorted((c1, c2) -> Double.compare(totalSpendingSearch.total(orders, c2), totalSpendingSearch.total(orders, c1)))
+                .forEach(c -> System.out.println("Namn: " + c.getFirstname() + " " + c.getLastname() + "\n" +
                         c.getAddress().toString() + "\nTotala Summa: " + totalSpendingSearch.total(orders, c) + " kr.\n"));
     }
 
@@ -139,19 +136,20 @@ public class Reports {
             int spending = o.getShoes().stream().mapToInt(shoe -> shoe.getPrice() * shoe.getQuantity()).sum();
             spendingPerCity.merge(city, spending, Integer::sum);
         });
-        Map<String, Integer> sortedSpendingPerCity = spendingPerCity.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-        printHelp.printCities(sortedSpendingPerCity);
+        printHelp.printCities(spendingPerCity.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new)));
     }
 
     private void listTopSellingShoes(int antal, int totalsumma){
-        ArrayList<Shoe> shoesList = new ArrayList<>();
+        List<Shoe> shoesList = new ArrayList<>();
         orders.forEach(o ->
-            o.getShoes().forEach(s -> {
-                if(shoesList.stream().noneMatch(n -> n.getId() == s.getId())) {
-                    shoesList.add(s);
-                }
-                shoesList.stream().filter(f -> f.getId() == s.getId()).forEach(f -> f.setQuantity(f.getQuantity() + 1));
-            })
+                o.getShoes().forEach(s -> {
+                    if(shoesList.stream().noneMatch(n -> n.getId() == s.getId())) {
+                        shoesList.add(new Shoe(s));
+                    }
+                    shoesList.stream().filter(f -> f.getId() == s.getId()).forEach(f -> f.setQuantity(f.getQuantity() + 1));
+                })
         );
         if(totalsumma == 1){
             shoesList.sort((s1, s2) -> s2.getQuantity()*s2.getPrice() - s1.getQuantity()*s1.getPrice());

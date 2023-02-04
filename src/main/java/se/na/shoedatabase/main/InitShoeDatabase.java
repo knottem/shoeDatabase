@@ -7,8 +7,8 @@ import se.na.shoedatabase.view.InputView;
 
 public class InitShoeDatabase {
 
-    InputView inputView = InputView.getInputView();
-    Repository rep = Repository.getRepository();
+    final InputView inputView = InputView.getInputView();
+    final Repository rep = Repository.getRepository();
     private final LoggedIn loggedIn = new LoggedIn();
     private final Reports reports = new Reports();
 
