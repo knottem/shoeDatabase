@@ -34,12 +34,14 @@ public class Reports {
     final OrdersCustomerInterface totalOrders = (o, c) -> o.stream().filter(f -> f.getCustomer().getId() == c.getId()).count();
 
     public void login(){
-        Admin admin;
-        if(InitShoeDatabase.propertiesLoader.loadProperties().getProperty("testing").equals("true")){
-            admin = rep.getAdmin(
-                    InitShoeDatabase.propertiesLoader.loadProperties().getProperty("loginAdmin"),
-                    Encrypt.encryptSHA3(InitShoeDatabase.propertiesLoader.loadProperties().getProperty("loginAdminPass"))
-            );
+        Admin admin = null;
+        if(InitShoeDatabase.propertiesLoader.loadProperties().getProperty("testing") != null) {
+            if (InitShoeDatabase.propertiesLoader.loadProperties().getProperty("testing").equals("true")) {
+                admin = rep.getAdmin(
+                        InitShoeDatabase.propertiesLoader.loadProperties().getProperty("loginAdmin"),
+                        Encrypt.encryptSHA3(InitShoeDatabase.propertiesLoader.loadProperties().getProperty("loginAdminPass"))
+                );
+            }
         } else {
             admin = rep.getAdmin(
                     inputView.inputString("Användarnamn?", true),

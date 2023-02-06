@@ -27,15 +27,18 @@ public class LoggedIn {
     final ShoeSearchInterface sizeSearch = (a, b) -> Integer.toString(a.getSize()).equalsIgnoreCase(b);
 
     public void login(){
-        Customer customer;
-        if(InitShoeDatabase.propertiesLoader.loadProperties().getProperty("testing").equals("true")){
-            customer = rep.getCustomer(
-                    Long.valueOf(InitShoeDatabase.propertiesLoader.loadProperties().getProperty("loginUser")),
-                    Encrypt.encryptSHA3(InitShoeDatabase.propertiesLoader.loadProperties().getProperty("loginUserPass")
-            ));
+        Customer customer = null;
+        if(InitShoeDatabase.propertiesLoader.loadProperties().getProperty("testing") != null) {
+            if (InitShoeDatabase.propertiesLoader.loadProperties().getProperty("testing").equals("true")) {
+                customer = rep.getCustomer(
+                        Long.valueOf(InitShoeDatabase.propertiesLoader.loadProperties().getProperty("loginUser")),
+                        Encrypt.encryptSHA3(InitShoeDatabase.propertiesLoader.loadProperties().getProperty("loginUserPass")
+                        ));
+            }
         } else {
             customer = rep.getCustomer(inputView.inputLong("Vad är ditt personnummer?", true), Encrypt.encryptSHA3(inputView.inputString("Vad är ditt lösenord?",true)));
         }
+
 
         if(customer != null){
             ArrayList<Shoe> shoes = rep.getAllShoes();
