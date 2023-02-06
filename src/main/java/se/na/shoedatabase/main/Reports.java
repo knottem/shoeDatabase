@@ -34,9 +34,17 @@ public class Reports {
     final OrdersCustomerInterface totalOrders = (o, c) -> o.stream().filter(f -> f.getCustomer().getId() == c.getId()).count();
 
     public void login(){
-        Admin admin = rep.getAdmin(
-                inputView.inputString("Användarnamn?", true),
-                Encrypt.encryptSHA3(inputView.inputString("Lösenord?", true)));
+        Admin admin;
+        if(InitShoeDatabase.propertiesLoader.loadProperties().getProperty("testing").equals("true")){
+            admin = rep.getAdmin(
+                    InitShoeDatabase.propertiesLoader.loadProperties().getProperty("loginAdmin"),
+                    Encrypt.encryptSHA3(InitShoeDatabase.propertiesLoader.loadProperties().getProperty("loginAdminPass"))
+            );
+        } else {
+            admin = rep.getAdmin(
+                    inputView.inputString("Användarnamn?", true),
+                    Encrypt.encryptSHA3(inputView.inputString("Lösenord?", true)));
+        }
         if(admin != null) {
             customers = rep.getAllCustomers();
             shoes = rep.getAllShoes();

@@ -1,5 +1,7 @@
 package se.na.shoedatabase.dao;
 
+import se.na.shoedatabase.main.InitShoeDatabase;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.Properties;
@@ -10,12 +12,12 @@ import static java.sql.DriverManager.getConnection;
 public class Connect {
 
     public Connection getConnectionDB() throws IOException {
-        Properties prop = new Properties();
-        prop.load(getClass().getClassLoader().getResourceAsStream("settings.properties"));
-        String[] temp = Stream.of("mysql", "username", "password").map(prop::getProperty).toArray(String[]::new);
+        String url = InitShoeDatabase.propertiesLoader.loadProperties().getProperty("mysql");
+        String username = InitShoeDatabase.propertiesLoader.loadProperties().getProperty("username");
+        String password = InitShoeDatabase.propertiesLoader.loadProperties().getProperty("password");
         try {
-            return getConnection(temp[0], temp[1], temp[2]);
-        } catch(Exception e){
+            return getConnection(url, username, password);
+        } catch(Exception e) {
             e.printStackTrace();
         }
         return null;

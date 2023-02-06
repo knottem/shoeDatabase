@@ -3,12 +3,16 @@ package se.na.shoedatabase.main;
 import se.na.shoedatabase.dao.Encrypt;
 import se.na.shoedatabase.dao.Repository;
 import se.na.shoedatabase.model.customer.Customer;
+import se.na.shoedatabase.utility.PropertiesLoader;
 import se.na.shoedatabase.view.InputView;
 
 public class InitShoeDatabase {
 
     final InputView inputView = InputView.getInputView();
     final Repository rep = Repository.getRepository();
+
+    public static PropertiesLoader propertiesLoader = new PropertiesLoader();
+
     private final LoggedIn loggedIn = new LoggedIn();
     private final Reports reports = new Reports();
 
