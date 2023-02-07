@@ -12,8 +12,9 @@ import se.na.shoedatabase.view.InputView;
 import se.na.shoedatabase.view.PrintHelp;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static se.na.shoedatabase.main.InitShoeDatabase.propertiesLoader;
 
 public class Reports {
 
@@ -34,14 +35,11 @@ public class Reports {
     final OrdersCustomerInterface totalOrders = (o, c) -> o.stream().filter(f -> f.getCustomer().getId() == c.getId()).count();
 
     public void login(){
-        Admin admin = null;
-        if(InitShoeDatabase.propertiesLoader.loadProperties().getProperty("testing") != null) {
-            if (InitShoeDatabase.propertiesLoader.loadProperties().getProperty("testing").equals("true")) {
-                admin = rep.getAdmin(
-                        InitShoeDatabase.propertiesLoader.loadProperties().getProperty("loginAdmin"),
-                        Encrypt.encryptSHA3(InitShoeDatabase.propertiesLoader.loadProperties().getProperty("loginAdminPass"))
-                );
-            }
+        Admin admin;
+        if(Boolean.parseBoolean(propertiesLoader.loadProperties().getProperty("testing"))) {
+            admin = rep.getAdmin(
+                    propertiesLoader.loadProperties().getProperty("loginAdmin"),
+                    Encrypt.encryptSHA3(propertiesLoader.loadProperties().getProperty("loginAdminPass")));
         } else {
             admin = rep.getAdmin(
                     inputView.inputString("Användarnamn?", true),
