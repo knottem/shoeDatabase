@@ -14,7 +14,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static se.na.shoedatabase.main.InitShoeDatabase.propertiesLoader;
+import static se.na.shoedatabase.main.InitShoeDatabase.properties;
+
 
 public class LoggedIn {
 
@@ -30,15 +31,12 @@ public class LoggedIn {
 
     public void login(){
         Customer customer;
-        if(Boolean.parseBoolean(propertiesLoader.loadProperties().getProperty("testing"))) {
-            customer = rep.getCustomer(
-                    Long.valueOf(propertiesLoader.loadProperties().getProperty("loginUser")),
-                    Encrypt.encryptSHA3(propertiesLoader.loadProperties().getProperty("loginUserPass")
-                    ));
+        if(properties.getTesting()) {
+            customer = rep.getCustomer(properties.getTestLoginUser(), properties.getTestLoginUserPass());
         } else {
-            customer = rep.getCustomer(inputView.inputLong("Vad är ditt personnummer?", true), Encrypt.encryptSHA3(inputView.inputString("Vad är ditt lösenord?",true)));
+            customer = rep.getCustomer(inputView.inputLong("Vad är ditt personnummer?", true),
+                    Encrypt.encryptSHA3(inputView.inputString("Vad är ditt lösenord?",true)));
         }
-
 
         if(customer != null){
             ArrayList<Shoe> shoes = rep.getAllShoes();

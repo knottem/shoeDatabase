@@ -11,7 +11,7 @@ public class InitShoeDatabase {
     final InputView inputView = InputView.getInputView();
     final Repository rep = Repository.getRepository();
 
-    public static PropertiesLoader propertiesLoader = new PropertiesLoader();
+    public static PropertiesLoader properties = new PropertiesLoader();
 
     private final LoggedIn loggedIn = new LoggedIn();
     private final Reports reports = new Reports();

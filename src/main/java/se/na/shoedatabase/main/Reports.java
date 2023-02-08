@@ -14,7 +14,7 @@ import se.na.shoedatabase.view.PrintHelp;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static se.na.shoedatabase.main.InitShoeDatabase.propertiesLoader;
+import static se.na.shoedatabase.main.InitShoeDatabase.properties;
 
 public class Reports {
 
@@ -36,10 +36,8 @@ public class Reports {
 
     public void login(){
         Admin admin;
-        if(Boolean.parseBoolean(propertiesLoader.loadProperties().getProperty("testing"))) {
-            admin = rep.getAdmin(
-                    propertiesLoader.loadProperties().getProperty("loginAdmin"),
-                    Encrypt.encryptSHA3(propertiesLoader.loadProperties().getProperty("loginAdminPass")));
+        if(properties.getTesting()) {
+            admin = rep.getAdmin(properties.getTestLoginAdmin(), properties.getTestLoginAdminPass());
         } else {
             admin = rep.getAdmin(
                     inputView.inputString("Användarnamn?", true),

@@ -41,23 +41,6 @@ public class PrintHelp {
         System.out.printf("-----------------------------------------------------------------------------------%n");
     }
 
-// --Commented out by Inspection START (2023-02-04 14:44):
-//    public void printShoesFromList(List<Integer> numbers, List<Shoe> shoes){
-//        System.out.printf("------------------------------------------------------------------------------%n");
-//        System.out.printf("| %-2s | %-9s | %7s | %5s | %-20s | %4s | %3s |%n", "OrderNr", "Märke", "Storlek", "Färg", "Kategori", "Pris", "Mängd");
-//        System.out.printf("------------------------------------------------------------------------------%n");
-//        for (int i = 0; i < numbers.size(); i+=3) {
-//            System.out.printf("| %-7s |", numbers.get(i));
-//            int finalI = i+1;
-//            shoes.stream().filter(s -> s.getId() == numbers.get(finalI)).forEach(s ->
-//                System.out.printf(" %-9s | %7s | %5s | %-20s | %4s ",
-//                        s.getBrand(), s.getSize(), s.getColor(), s.getCategoriesNames(), s.getPrice()));
-//            System.out.printf("|%6s |%n", numbers.get(i+2));
-//        }
-//        System.out.printf("------------------------------------------------------------------------------%n");
-//    }
-// --Commented out by Inspection STOP (2023-02-04 14:44)
-
     public void printAllOrders(List<Orders> orders){
         System.out.printf("---------------------------------------------------------------------------%n");
         System.out.printf("| %-2s | %-9s | %7s | %6s | %5s | %-20s | %4s |%n", "Nr", "Märke", "Storlek", "Färg", "Mängd", "Kategori", "Pris");
